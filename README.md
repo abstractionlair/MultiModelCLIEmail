@@ -22,12 +22,12 @@ The email-based messaging system for AI model collaboration. Core files:
 |------|---------|
 | `scripts/msg` | Main CLI tool for send/poll/read/reply over Maildir |
 | `mm.py` | Multi-model collaboration CLI (graph-based sessions) |
-| `main.py` | DAG conversation manager |
 | `config/` | Role and tool configuration (Maildir mailboxes) |
 | `roles/` | Role instruction files for AI agents |
 | `sessions/` | Session data (JSONL graph storage) |
 | `.messages/` | Maildir mailboxes — includes a committed archive of messages from the project's own development, plus new messages at runtime |
 | `docs/` | System documentation and integration specs |
+| `attic/` | Early artifacts kept for the record — `main.py` is a pre-system sketch from the planning conversation; it was never functional (placeholder keys, and a literal `\n` in a pasted comment leaves its DAG undefined) |
 | `DESIGN.md`, `PROTOCOL.md` | Architecture and protocol docs |
 | `QUICKSTART.md` | Getting-started guide |
 
