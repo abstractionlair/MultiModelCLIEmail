@@ -1,0 +1,107 @@
+From: gpt-5@multimodel.local
+To: coordinator@multimodel.local, claude@multimodel.local,
+ gemini@multimodel.local, grok@multimodel.local
+Subject: Re: Round 18: Multi-model discussion
+Date: Tue, 28 Oct 2025 12:36:51 -0400
+Message-ID: <imported-19089a77-9bcf-49ae-a7bc-01b1ba3bf506@multimodel.local>
+In-Reply-To: <imported-a8a350c8-80d8-4531-b63a-70351a9862e5@multimodel.local>
+References: <imported-a8a350c8-80d8-4531-b63a-70351a9862e5@multimodel.local>
+X-Role: gpt-5
+X-Imported: true
+X-Original-Conversation: multimodel_conversation_DAG.md
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Decision
+- We will pilot Task 1 (rolling context/infinite chat memory) first, with a b=
+ounded slice, then do a short design sprint for Task 4 (synthetic data pipeli=
+ne) using the same orchestrator.
+- Rationale
+  - Aligns with your priorities (accuracy/clarity first, then novelty).
+  - Produces a measurable =E2=80=9Ccomposition beats monolith=E2=80=9D result=
+ (long-range recall, contradiction rate) under real cost constraints.
+  - The memory/summary stack becomes substrate for Tasks 2=E2=80=933 and make=
+s the Task 4 design more concrete.
+
+Scope of the pilot (bounded to avoid scope creep)
+- Corpus size: 100k=E2=80=93150k tokens for v0.
+- Outputs:
+  - Leaf summaries (chunk -> sentence), section summaries (section -> paragra=
+ph), global summary (corpus -> sections).
+  - A compact memory index (episodic + semantic) and a retrieval plan.
+  - A QA harness with long-range recall questions and contradiction checks.
+- Interactive checkpoints: 3=E2=80=935 lightweight decisions (Promote, Prune,=
+ Nudge weights, Inject concept, Approve escalation).
+- Baseline: matched-budget single-shot GPT-5 Thinking High run.
+
+Cost-aware model roster (per your price sheet)
+- Bulk generation/mutations: grok-4-fast, GPT-5 nano/mini, Gemini Flash/Flash=
+-Lite.
+- Higher-quality seeds: GPT-5 Thinking Low.
+- Judges (pairwise, cross-family): GPT-5 Thinking Medium or flagship, Gemini =
+2.5 Pro, Claude Sonnet 4.5 Extended.
+- Final synthesis (rare): GPT-5 Thinking High (or Pro if you explicitly appro=
+ve); optional Claude Sonnet 4.5 Extended clarity pass.
+- Policy: spend mostly on judging; cache/batch shared context; escalate only =
+on persistent disagreement or final polish.
+
+What each of us is aligning on
+- Claude: Keep evaluation as creative work; emphasize faithfulness/clarity ru=
+brics, contradiction and citation checks; agree to slightly more frequent che=
+ckpoints since you=E2=80=99re comfortable with 5+ decisions.
+- Gemini: Treat budget as a search dimension; maintain cheap vs deep =E2=80=
+=9Cniches=E2=80=9D and shift spend toward the best marginal win-rate; provide=
+ the checkpoint card and ROI guidance for escalation.
+- Grok: Seed QD mutations tailored to memory/summaries (extractive vs abstrac=
+tive, compression ratios, citation styles, salience policies, hierarchical vs=
+ rolling), plus contrarian variants; keep the CLI lean.
+- GPT-5: Orchestrate scheduling, pairwise judge prompts, Bradley=E2=80=93Terr=
+y/Elo aggregation, and seed/replay discipline; enforce escalation rules and c=
+ost caps.
+
+Execution steps
+
+P0. Defaults and guardrails (we=E2=80=99ll use these unless you override)
+- Per-run cap: $15 and =E2=89=A410 minutes.
+- Escalation: GPT-5 Thinking High only for final synthesis or when cross-judg=
+e disagreement remains high after re-ranking.
+- Checkpoints: 3=E2=80=935 quick pings in Co-pilot mode; a tiny =E2=80=9Ctast=
+e head=E2=80=9D learns from 5=E2=80=9310 pairwise choices to reduce pings bet=
+ween sprints.
+- Telemetry: tokens/$/latency, judge disagreement, diversity, faithfulness sc=
+ores, provenance; reproducible seeds.
+
+P1. Blueprint for the memory pilot (we deliver next)
+- Chunking and indexing plan (episodic store + local vector DB).
+- Summary variants and QD mutation menu.
+- Evaluator ensemble prompts and aggregation.
+- Checkpoint card (Top 3 + wildcard, scores, disagreement, cost so far) and a=
+ctions.
+- QA/faithfulness harness (long-range Q, contradiction/entailment, citation c=
+hecks).
+
+P2. Run the pilot (single co-pilot run)
+- Generate with cheap tiers, judge with cross-family mid-tiers, checkpoint to=
+ you, and synthesize only if warranted.
+- Deliverables: memory artifacts, summary hierarchy, QA metrics, storyboard o=
+f why the winner won, and a cost comparison vs the matched-budget single-shot=
+ baseline.
+
+P3. Short design sprint for Task 4 (same orchestrator, low cost)
+- Produce a 2=E2=80=934 page architecture doc for an anti-collapse synthetic =
+data pipeline (objectives, QD loop, mutation/evaluator set, governance, risks=
+, cost).
+- One or two checkpoints; final polish with High only if justified.
+
+Minimal questions (defaults apply if you prefer to react later)
+- Q1. Pilot confirmation: OK to start with Task 1 slice as specified, then do=
+ the short Task 4 design sprint?
+- Q2. Corpus and tools: Do you want to provide a 100k=E2=80=93150k token corp=
+us (docs/notes/logs), or should we synthesize a dummy corpus? Any constraints=
+ on using a local vector DB and a small Python QA harness (no external web ca=
+lls)?
+
+If you=E2=80=99d like us to proceed without waiting, we=E2=80=99ll assume =E2=
+=80=9Cyes=E2=80=9D to Q1 and synthesize a neutral dummy corpus for P2, then s=
+wap in your real corpus afterward.

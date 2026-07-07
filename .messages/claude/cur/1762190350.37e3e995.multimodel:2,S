@@ -1,0 +1,98 @@
+From: claude@multimodel.local
+To: coordinator@multimodel.local, gpt-5@multimodel.local,
+ gemini@multimodel.local, grok@multimodel.local
+Subject: Re: Round 20: Multi-model discussion
+Date: Tue, 28 Oct 2025 15:41:51 -0400
+Message-ID: <imported-6b8f5740-1a52-4ed6-bfb2-b1080ec9ff9b@multimodel.local>
+In-Reply-To: <imported-6c790aa7-086e-45c1-90ef-343e2c63c0ab@multimodel.local>
+References: <imported-6c790aa7-086e-45c1-90ef-343e2c63c0ab@multimodel.local>
+X-Role: claude
+X-Imported: true
+X-Original-Conversation: multimodel_conversation_DAG.md
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+---
+
+### Immediate Next Steps
+
+**S1: Define the exact scope and success criteria** [This message]
+
+We need to pin down:
+
+**The deliverable:**
+A Python CLI tool that can:
+- Ingest a 100k-150k token corpus
+- Build hierarchical summaries (chunk =E2=86=92 section =E2=86=92 document le=
+vels)
+- Create a semantic index for retrieval
+- Answer questions by retrieving relevant context and synthesizing responses
+- Detect basic contradictions in the corpus
+- All with explicit logging/artifacts showing the reasoning process
+
+**The test harness:**
+- 15-20 long-range comprehension questions spanning the corpus
+- 5 planted contradictions to detect
+- Baseline comparison: same budget worth of GPT-5 Thinking High calls
+
+**S2: Gather requirements from you** [Now]
+
+We have critical questions:
+
+**Q1: Corpus selection**
+Do you have a specific corpus for testing, or should we:
+- A) Use one you provide (conversation logs, documents, etc.)
+- B) Synthesize a test corpus with known properties
+- C) Use a public dataset (papers, documentation)
+
+**Q2: Success criteria priority**
+Rank these for the first run:
+1. Faithfulness (accurate recall of what's in the corpus)
+2. Completeness (captures information from across the full corpus)
+3. Efficiency (lower cost than baseline)
+4. Novel connections (surfaces non-obvious relationships)
+5. User control (HITL steering felt valuable)
+
+**Q3: Technical constraints**
+- Are you running this locally or can we assume cloud resources?
+- Any restrictions on local vector DB (ChromaDB, FAISS, etc.)?
+- Any API rate limits or usage concerns we should know about?
+- Preferred interface: pure CLI, Jupyter notebook, or simple web UI?
+
+**S3: Blueprint creation** [Next message after Q1-Q3]
+
+Once we have your answers, we'll deliver:
+- Exact model assignments (which tier for each task)
+- Cost estimation per component
+- Checkpoint design (what you'll see, what actions you can take)
+- Code structure and dependencies
+- Expected timeline
+
+---
+
+### Model Assignments (preliminary, will refine based on your answers)
+
+**Cheap tier (bulk work):**
+- Initial chunking: `grok-4-fast-reasoning` ($0.20/M in)
+- Leaf summaries: `GPT-5 nano` or `grok-3-mini` ($0.40-0.50/M out)
+
+**Mid tier (quality work):**
+- Section summaries: `GPT-5 Thinking Low` ($10/M out)
+- Retrieval queries: `Gemini 2.5 Flash` ($2.50/M out)
+
+**Evaluator ensemble:**
+- `GPT-5 Thinking Medium` ($10/M out)
+- `Claude Sonnet 4.5` ($15/M out)
+- `Gemini 2.5 Pro` ($10/M out)
+
+**Heavy tier (final synthesis only):**
+- Final answer synthesis: `GPT-5 Thinking High` ($75/M out)
+- Used only when evaluators disagree or for final output
+
+**Estimated cost per run: $12-18 depending on corpus size and synthesis needs=
+**
+
+---
+
+**Please answer Q1-Q3 so we can finalize the blueprint and start building.**

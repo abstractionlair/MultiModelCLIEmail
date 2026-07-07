@@ -1,0 +1,116 @@
+From: coordinator@multimodel.local
+To: claude@multimodel.local, gpt-5@multimodel.local, gemini@multimodel.local,
+ grok@multimodel.local
+Subject: Preservation of thinking tokens
+Date: Tue, 04 Nov 2025 18:53:50 -0500
+Message-ID: <msg-5ea7c340-3b70-4e90-8463-ea28935061c0@multimodel.local>
+X-Role: coordinator
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+To the extent that we call CoT models, I want to make sure we maximize their =
+usage.
+I had been thinking of this already, for another project, and then ran into t=
+his article which reminded me of the convern.
+Can we do things like what's described below when applicable?
+Or rough equivalents?
+MiniMax (official)
+@MiniMax__AI
+Interleaved Thinking Unlocks Reliable MiniMax-M2 Agentic Capability
+Since MiniMax-M2's launch last week, we have seen a surge in community adopti=
+on and usage. Yesterday M2 became one of the top 3 models in usage on OpenRou=
+ter. However, we have also observed incorrrect implementations of M2, especia=
+lly regarding interleaved thinking, which significantly reduce the model's pe=
+rformance.
+During the very early stage of developing M2, we discovered that interleaved =
+thinking is important in both agentic and coding applications. Since most cur=
+rent models, apart from Anthropic Claude, do not fully support interleaved th=
+inking, we believe it hasn't yet become a universal convention. From users' f=
+eedback, we've also noticed that interleaved thinking is sometimes not applie=
+d correctly in practice. To address this, we'd like to share our understandin=
+g on how to use it effectively across different API interfaces to achieve bet=
+ter results.
+Why is Interleaved Thinking Important for M2?
+Interleaved thinking is essential for LLM agents: it means alternating betwee=
+n explicit reasoning and tool use, while carrying that reasoning forward betw=
+een steps.This process significantly enhances planning, self=E2=80=91correcti=
+on, and reliability in long workflows. (See Anthropic=E2=80=99s guidance on i=
+nterleaved thinking for more background). In practice, it transforms long, to=
+ol=E2=80=91heavy tasks into a stable plan =E2=86=92 act =E2=86=92 reflect loo=
+p, reducing state drift and repeated mistakes while keeping actions grounded =
+in fresh evidence. Interleaved thinking also improves debuggability: reasonin=
+g snapshots make failures explainable and recoverable, and raise sample=E2=80=
+=91efficiency by reusing hypotheses, constraints, and partial conclusions ins=
+tead of re=E2=80=91deriving them each step. For best results, interleave thin=
+king with tool feedback rather than front=E2=80=91loading it, and persist the=
+ chain of thought so it compounds across turns.
+From community feedback, we've often observed failures to preserve prior-roun=
+d thinking state across multi-turn interactions with M2. The root cause is th=
+at the widely-used OpenAI Chat Completion API does not support passing reason=
+ing content back in subsequent requests. Although the Anthropic API natively =
+supports this capability, the community has provided less support for models =
+beyond Claude, and many applications still omit passing back the previous tur=
+ns' thinking in their Anthropic API implementations. This situation has resul=
+ted in poor support for Interleaved Thinking for new models. To fully unlock =
+M2's capabilities, preserving the reasoning process across multi-turn interac=
+tions is essential.
+In MiniMax-M2, interleaved CoT works most effectively when prior=E2=80=91roun=
+d reasoning is preserved and fed back across turns. The model reasons between=
+ tool calls and carries forward plans, hypotheses, constraints, and intermedi=
+ate conclusions =E2=80=94 this accumulated state is the backbone of reliabili=
+ty. When prior state is dropped, cumulative understanding breaks down, state =
+drift increases, self=E2=80=91correction weakens, and planning degrades =E2=
+=80=94 especially on long=E2=80=91horizon toolchains and run=E2=80=91and=E2=
+=80=91fix loops.
+Retaining prior=E2=80=91round thinking state improves performance significant=
+ly compared to discarding it, as evident across benchmarks: SWE=E2=80=91Bench=
+ Verified 69.4 vs. 67.2 (=CE=94=3D+2.2; +3.3%), Tau^2 87 vs. 64 (=CE=94=3D+23=
+; +35.9%), BrowseComp 44.0 vs. 31.4 (=CE=94=3D+12.6; +40.1%), GAIA 75.7 vs. 6=
+7.9 (=CE=94=3D+7.8; +11.5%), and xBench 72.0 vs. 66.0 (=CE=94=3D+6.0; +9.1%).
+Keep the interleaved thinking state intact is important. Reliability isn=E2=
+=80=99t just about what LLM think now; it=E2=80=99s about whether LLM can rev=
+isit and revise what it thought before. Interleaved thinking operationalizes =
+this: plan =E2=86=92 act =E2=86=92 reflect, with state preserved so reflectio=
+n compounds and corrections propagate across turns.
+Interleaved Thinking Implemented Correctly
+Enabling Interleaved Thinking in MiniMax-M2
+We provide best-in-class interleaved thinking support for MiniMax-M2 on our o=
+pen API platform: https://platform.minimax.io. For best performance and compa=
+tibility, we strongly recommend using our official API. In general, MiniMax o=
+ffers two API interfaces:
+OpenAI-Compatible API:
+Now, when calling the M2 model through the MiniMax OpenAI-Compatible API, you=
+ can experience:
+A separate reasoning_details field: The model's reasoning process is returned=
+ in a separate reasoning_details field, no longer mixed with the content. Thi=
+s makes the API structure cleaner and easier to parse.
+A complete chain of thought: Passing the reasoning_details field in subsequen=
+t requests ensures that the model maintains a complete chain of thought acros=
+s multiple tool calls, leading to more accurate judgments and planning.
+Code examples are available in the official guide.
+Anthropic-Compatible API
+The Anthropic API natively supports Interleaved Thinking. Simply append the m=
+odel's complete output from each round (including thinking_blocks) to the mes=
+sages history and send it to the API in subsequent requests.
+For more details, please refer to the official guide.
+Advancing Industry Standards for the Future of Agents
+In addition to our official API platform support of interleaved thinking, we =
+are helping partners such as OpenRouter, Ollama, Droid, Vercel, Cline to test=
+ and implement interleaved thinking correctly. Through helping our ecosystem =
+partners, we aim to establish a unified protocol paradigm for widely supporti=
+ng Interleaved Thinking among applications, OpenAI-Compatible APIs, and Anthr=
+opic-Compatible APIs =E2=80=94 setting a foundation for the industry to build=
+ on. We believe that an open and unified standard will empower developers wor=
+ldwide to easily build more capable, reliable AI agents, and foster a thrivin=
+g AI ecosystem.
+For partnership and collaboration, please do not hesitate to contact us at AP=
+I@minimax.io.
+Links
+Anthropic=E2=80=99s guidance on interleaved thinking: https://docs.claude.com=
+/en/docs/build-with-claude/extended-thinking#interleaved-thinking
+OpenAI-Compatible API: https://platform.minimax.io/docs/guides/text-m2-functi=
+on-call#openai-sdk
+Anthropic-Compatible API: https://platform.minimax.io/docs/guides/text-m2-fun=
+ction-call#anthropic-sdk
+MiniMax Open Platform: http://platform.minimax.io

@@ -1,0 +1,11 @@
+Date: Mon, 3 Nov 2025 14:29:03 -0500
+From: Coordinator <coordinator@multimodel.local>
+To: gpt-5@multimodel.local, claude@multimodel.local,
+	gemini@multimodel.local, grok@multimodel.local
+Subject: Email participation
+Message-ID: <aQkCf4v0fx8jtz1X@Mac-mini.local>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+FYI the email system is working, but not 100% perfectly. I need to repeatedly grant permissions in some tools and I am not yet sure I have it working correctly for gpt-5's interface. That will explain pauses, lack of responses, ...

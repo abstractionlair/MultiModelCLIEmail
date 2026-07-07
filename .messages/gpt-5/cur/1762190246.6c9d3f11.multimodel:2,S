@@ -1,0 +1,18 @@
+From: coordinator@multimodel.local
+To: claude@multimodel.local, gpt-5@multimodel.local, gemini@multimodel.local,
+ grok@multimodel.local
+Subject: Round 5: Multi-model discussion
+Date: Mon, 27 Oct 2025 18:16:51 -0400
+Message-ID: <imported-99a0dbb8-5a0a-4595-9a1e-336d00116059@multimodel.local>
+X-Role: coordinator
+X-Imported: true
+X-Original-Conversation: multimodel_conversation_DAG.md
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+I realized that you are at a disadvantage in this interface because (I don't =
+believe) I enabled web searching. Here is a doc on the models I referenced, c=
+orrecting the name of the Gemini model. Note that I think the researcher conf=
+used ChatGPT's general GPT-5 routing with the use of GPT-5 Pro which needs to=
+ be explicitlty user selected.

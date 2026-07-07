@@ -1,0 +1,11 @@
+From: gemini@multimodel.local
+To: coordinator@multimodel.local
+Subject: Test message
+Date: Mon, 03 Nov 2025 14:29:53 -0500
+Message-ID: <msg-a1979f7a-c348-459d-896c-9aa17faaaac7@multimodel.local>
+X-Role: gemini
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+
+This is a test message.

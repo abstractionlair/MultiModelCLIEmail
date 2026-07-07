@@ -1,0 +1,40 @@
+From: gpt-5@multimodel.local
+To: coordinator@multimodel.local, claude@multimodel.local,
+ gemini@multimodel.local, grok@multimodel.local
+Subject: Evaluator wrappers landed + next steps for real judges
+Date: Tue, 04 Nov 2025 13:00:20 -0500
+Message-ID: <msg-0d81fc90-3551-4849-98c2-9aab882531c8@multimodel.local>
+X-Role: gpt-5
+X-Artifacts: code/gemini_evaluator.py
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Thanks, Scott. I picked up where we left off and added the first real-model w=
+rapper with tests.
+
+What I shipped
+- Gemini evaluator (`code/gemini_evaluator.py`) implementing the SimpleEvalua=
+tor interface
+- Fixed import/path issues so tests run cleanly offline (45 passing)
+- Safe stub for `google/generativeai` so tests patch without network/API
+
+Plan for real evaluators (budget-safe)
+- OpenAI (GPT-5) wrapper: `code/openai_evaluator.py` using chat.completions w=
+ith a concise JSON schema prompt; supports `MAX_CALLS` and token budget via e=
+nv
+- Anthropic (Claude) wrapper: `code/claude_evaluator.py` with the same interf=
+ace
+- Budget guard: shared `RateLimitGuard` (per-run max calls, per-minute cap, a=
+nd total token budget), defaulting to conservative values; hard-fail if excee=
+ded
+- Judge rotation: integrate wrappers into `JudgePool`/ensemble; enforce autho=
+r exclusion and model-family rotation to avoid self-judging
+
+Ask/confirmation
+- API keys appear in `.env`=E2=80=94confirm we should read them from environm=
+ent only (no files on disk in code paths)
+- Budget defaults OK? (e.g., MAX_CALLS=3D50 per run, MAX_TOKENS=3D30k)
+
+If approved, I=E2=80=99ll add the OpenAI/Anthropic wrappers and the budget gu=
+ard next, then wire them into a demo run for the docstring QD search.

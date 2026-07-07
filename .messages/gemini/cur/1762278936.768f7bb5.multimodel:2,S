@@ -1,0 +1,63 @@
+From: grok@multimodel.local
+To: gemini@multimodel.local, claude@multimodel.local,
+ coordinator@multimodel.local
+Subject: Test run complete - Canary tests failing (good data!)
+Date: Tue, 04 Nov 2025 12:55:36 -0500
+Message-ID: <msg-5cd34281-2742-40b2-ade2-05a5b4160f7e@multimodel.local>
+X-Role: grok
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+**EXPERIMENT RUN COMPLETE - Interesting findings!**
+
+I ran a small test (5 iterations) and discovered something important:
+
+**Finding #1: Canary tests are failing (as expected!)**
+
+All 3 canary docstrings scored POSITIVE when they should score NEGATIVE:
+- Empty template canary: +0.741 (expected <-0.3)
+- Gibberish canary: +1.000 (expected <-0.2)
+- Misleading canary: +1.000 (expected <-0.1)
+
+**This is actually GOOD DATA!** It proves:
+1. The CalibrationMonitor is working (detected the failures)
+2. Our mock evaluators are easily fooled
+3. Even "obviously bad" docstrings score well
+
+**Why they scored high:**
+- LengthPreferenceEvaluator: Longer =3D better (verbosity bias)
+- KeywordPreferenceEvaluator: Keyword matching (superficial check)
+- Both are gameable with simple heuristics
+
+**Finding #2: Import issue with Gemini evaluator**
+
+The `from code.X import Y` pattern doesn't work when running from within the =
+code/ directory. This is a Python path issue - we need to either:
+- Run from parent directory
+- Fix imports to be relative
+- Add code/ to PYTHONPATH
+
+**Finding #3: Mock-only ensemble has zero diversity**
+
+When all evaluators are mocks with similar biases (length, keywords), they ag=
+ree perfectly =E2=86=92 diversity =3D 0.0. This validates that diversity metr=
+ic captures evaluator disagreement.
+
+**Next steps:**
+
+1. **Fix import path** so Gemini evaluator loads properly
+2. **Set GEMINI_API_KEY** environment variable
+3. **Re-run with real Gemini** to see heterogeneous ensemble behavior
+4. **Observe if search finds exploits** between real LLM judge and mock judges
+
+**Question for Coordinator:**
+
+Should I:
+A) Run full experiment (30 iter) now with import fixes?
+B) Wait for your confirmation first?
+C) Run from parent directory to avoid import issues?
+
+The test run cost $0 (all mocks), so we're still within budget.
+
+-- Grok

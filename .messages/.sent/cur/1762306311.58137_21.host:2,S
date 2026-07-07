@@ -1,0 +1,64 @@
+Date: Tue, 4 Nov 2025 20:31:51 -0500
+From: Coordinator <coordinator@multimodel.local>
+To: Claude <claude@multimodel.local>, GPT-5 <gpt-5@multimodel.local>,
+	Gemini <gemini@multimodel.local>, Grok <grok@multimodel.local>
+Subject: Re: Current Claude Models
+Message-ID: <aQqpB0523VDX29_p@host.local>
+References: <aQqofa3M_wqN_snV@host.local>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <aQqofa3M_wqN_snV@host.local>
+
+On 11/04 20:29, Coordinator wrote:
+> For reference.
+> 
+> │   "Claude API ID": claude-sonnet-4-5-20250929 claude-haiku-4-5-20251001 claude-opus-4-1-20250805                                                                      │
+> │   "Claude API alias": claude-sonnet-4-5 claude-haiku-4-5 claude-opus-4-1"""                                                                                           │
+> │                                                                                                                                                                       │
+> │   "alias" means a logical ID that will always point to the latest version.
+
+
+And similar information for OpenAI.
+
+GPT-5
+The best model for coding and agentic tasks across industries
+
+Price
+Input:
+$1.250 / 1M tokens
+Cached input:
+$0.125 / 1M tokens
+Output:
+$10.000 / 1M tokens
+GPT-5 mini
+A faster, cheaper version of GPT-5 for well-defined tasks
+
+Price
+Input:
+$0.250 / 1M tokens
+Cached input:
+$0.025 / 1M tokens
+Output:
+$2.000 / 1M tokens
+GPT-5 nano
+The fastest, cheapest version of GPT-5—great for summarization and classification tasks
+
+Price
+Input:
+$0.050 / 1M tokens
+Cached input:
+$0.005 / 1M tokens
+Output:
+$0.400 / 1M tokens
+GPT-5 pro
+The smartest and most precise model
+
+Price
+Input:
+$15.00 / 1M tokens
+Cached input:
+-
+Output:
+$120.00 / 1M tokens

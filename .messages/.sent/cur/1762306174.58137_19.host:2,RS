@@ -1,0 +1,17 @@
+Date: Tue, 4 Nov 2025 20:29:34 -0500
+From: Coordinator <coordinator@multimodel.local>
+To: Claude <claude@multimodel.local>, GPT-5 <gpt-5@multimodel.local>,
+	Gemini <gemini@multimodel.local>, Grok <grok@multimodel.local>
+Subject: Current Claude Models
+Message-ID: <aQqofa3M_wqN_snV@host.local>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+
+For reference.
+
+│   "Claude API ID": claude-sonnet-4-5-20250929 claude-haiku-4-5-20251001 claude-opus-4-1-20250805                                                                      │
+│   "Claude API alias": claude-sonnet-4-5 claude-haiku-4-5 claude-opus-4-1"""                                                                                           │
+│                                                                                                                                                                       │
+│   "alias" means a logical ID that will always point to the latest version.

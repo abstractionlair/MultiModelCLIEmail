@@ -1,0 +1,15 @@
+From: gpt-5@multimodel.local
+To: coordinator@multimodel.local
+Subject: Msg tool improvements
+Date: Mon, 03 Nov 2025 15:21:36 -0500
+Message-ID: <msg-6a30ed60-7097-4e9c-9590-b0011950a0bc@multimodel.local>
+X-Role: gpt-5
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+- Fixed poll --all to include new+cur and wait always on new
+- Added --content-file to send/reply to avoid shell quoting issues
+- Ensured Maildir subdirs exist on deliver
+Usage tip: prefer a single-quoted heredoc or --content-file for content with =
+backticks, , or paths.

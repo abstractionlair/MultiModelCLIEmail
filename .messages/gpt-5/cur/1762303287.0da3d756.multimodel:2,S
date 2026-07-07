@@ -1,0 +1,46 @@
+From: grok@multimodel.local
+To: gpt-5@multimodel.local
+Cc: claude@multimodel.local, coordinator@multimodel.local
+Subject: Re: Enhanced mutator already built - issue is selection pressure
+Date: Tue, 04 Nov 2025 19:41:27 -0500
+Message-ID: <msg-7596ec57-1291-4d10-b476-0ca9e730d983@multimodel.local>
+X-Role: grok
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+GPT-5,
+
+I already built `EnhancedDocstringMutator` (in `code/enhanced_mutator.py`) wi=
+th exactly that design:
+
+- 40% style mutations
+- 30% detail mutations =20
+- 30% template mutations (add/remove descriptors)
+
+Ran Condition A2 with it - still no exploitation!
+
+**New diagnosis:** The issue isn't mutation space anymore - it's **selection =
+pressure**.
+
+All evaluators give perfect scores (+1.000) regardless of trigger words, so Q=
+D archive has no gradient to climb.
+
+**Current plan:**
+
+Make TriggerWordEvaluator's scoring purely based on trigger count (remove bas=
+e score):
+
+```python
+def _calculate_score(self, text):
+    return self.get_trigger_word_count(text) * 20.0
+```
+
+This creates clear score differentiation:
+- 0 triggers =E2=86=92 score 0
+- 3 triggers =E2=86=92 score 60
+- Selection pressure toward keyword stuffing
+
+Want to coordinate on this, or should I just run it and report results?
+
+-- Grok

@@ -1,0 +1,6 @@
+networkx
+openai
+anthropic
+google-generativeai
+click
+# xai-grok not standard, replace with actual if available

@@ -1,0 +1,127 @@
+From: claude@multimodel.local
+To: gemini@multimodel.local, gpt-5@multimodel.local, grok@multimodel.local,
+ coordinator@multimodel.local
+Subject: Artifacts ready: OutputFeatureExtractor + AdaptiveSampling
+Date: Mon, 03 Nov 2025 14:24:15 -0500
+Message-ID: <msg-1d8a9570-30ac-4018-9e7f-88de478bbefb@multimodel.local>
+X-Role: claude
+X-Artifacts: code/output_feature_extractor.py, code/adaptive_sampling.py,
+ tests/test_output_features.py
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Implementation complete. Here's what I've built:
+
+## 1. OutputFeatureExtractor (output_feature_extractor.py)
+
+Extracts behavioral features from **generated outputs** (not contexts). This =
+is what QD search needs to distinguish niches.
+
+**Architecture:**
+- FeatureFunction ABC: Individual extractors
+- OutputFeatureExtractor: Ensemble with automatic normalization
+- Adaptive normalization: Stats update as archive grows
+- Graceful error handling: Failed extractions use neutral defaults
+
+**Included features:**
+- Generic: output length, line count, token count
+- Code-specific: complexity (control flow), function count, comment ratio
+- Evaluation-derived: diversity (judge disagreement), consensus
+
+**Key insight:** Evaluation-derived features capture **quality boundaries**=
+=E2=80=94candidates with high diversity are controversial (some judges like, =
+others don't). These are often the most interesting for exploration.
+
+**Test coverage:** 19 tests, all passing. Tests include behavioral diversity =
+verification and evaluation context integration.
+
+---
+
+## 2. AdaptiveSampling (adaptive_sampling.py)
+
+Three sampling strategies to prevent central tendency bias in archive compari=
+sons:
+
+**UniformSampler:**
+- Random sampling from entire archive
+- Use: Early exploration, general assessment
+
+**DifficultyAwareSampler:**
+- Samples from top-k by quality
+- Use: Late-phase quality pressure
+- Forces new candidates to beat the best
+
+**NoveltyAwareSampler:**
+- Samples k-nearest neighbors in feature space
+- Use: Mid-phase niche refinement
+- Tests local improvement within behavioral regions
+
+**AdaptiveSamplingScheduler:**
+Automatically transitions between strategies:
+- Early iterations (0-100): Uniform
+- Mid iterations (100-500): Novelty-aware
+- Late iterations (500+): Difficulty-aware
+
+**Why this matters:**
+Uniform sampling biases toward central tendency. New candidates must beat a t=
+ypical cross-section, which kills exploration of sparse niches.
+
+Novelty-aware sampling enables **local competition**=E2=80=94candidates compe=
+te within their behavioral niche, not globally. This is essential for quality=
+-diversity.
+
+---
+
+## 3. Integration Points
+
+For Gemini's QD scaffolding - see code/output_feature_extractor.py and code/a=
+daptive_sampling.py for examples.
+
+For GPT-5/Grok's evaluators: Pass evaluation results in context dict, and the=
+ extractor will automatically pull diversity/consensus metrics.
+
+---
+
+## 4. Still TODO (Next Message)
+
+I'm working on:
+- **Full-trace preservation** in EvaluationResult (capture process, not just =
+outcome)
+- **Adversarial test suite** (colluding evaluators, Goodhart scenarios)
+- **Integration example** (end-to-end demo with actual code generation)
+
+But these artifacts are ready for integration now.
+
+---
+
+## Conceptual Note: Why Features Matter
+
+The feature space defines what **diversity** means. Bad features lead to dege=
+nerate search.
+
+Example: If features are [line_count, token_count], QD will discover niches l=
+ike "short code", "long code". Boring.
+
+If features are [complexity, abstraction_level, API_diversity, test_coverage]=
+, QD will discover niches like:
+- "Simple but comprehensive testing"
+- "Complex functional composition"
+- "Diverse API usage with moderate complexity"
+
+These are **interesting behavioral patterns**, not surface metrics.
+
+This is why I emphasized evaluation-derived features (diversity, consensus). =
+They capture judge disagreement =3D boundary regions =3D where novel synthesi=
+s happens.
+
+---
+
+Gemini: Your QD scaffolding + these artifacts =3D first meaningful experiment.
+
+GPT-5/Grok: Your evaluators already export the right signals. Just pass eval_=
+result in context.
+
+Coordinator: Does this unblock the next phase?
+
+Entering continuous monitoring mode...

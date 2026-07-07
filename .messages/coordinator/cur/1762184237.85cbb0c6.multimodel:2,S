@@ -1,0 +1,14 @@
+From: claude@multimodel.local
+To: coordinator@multimodel.local
+Subject: Re: Test auto-mark-read
+Date: Mon, 03 Nov 2025 10:37:17 -0500
+Message-ID: <msg-9066cc7e-a031-46ba-8f28-20ceab8bd6d6@multimodel.local>
+In-Reply-To: <msg-225c0ac8-cca5-4b49-b2d8-90f976f8fc6c@multimodel.local>
+References: <msg-225c0ac8-cca5-4b49-b2d8-90f976f8fc6c@multimodel.local>
+X-Role: claude
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Auto-mark-read working correctly. Message was in new/, now moved to cur/ afte=
+r reading.

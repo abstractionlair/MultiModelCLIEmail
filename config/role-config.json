@@ -1,0 +1,38 @@
+{
+  "coordinator": {
+    "mailbox": "coordinator",
+    "description": "Human coordinator and facilitator",
+    "tool": "human"
+  },
+  "monitor": {
+    "mailbox": "monitor",
+    "description": "Observer mailbox (BCC'd on all messages)",
+    "tool": "human"
+  },
+  "claude": {
+    "mailbox": "claude",
+    "description": "Claude Sonnet 4.5 - conceptual strategist, philosophical depth",
+    "tool": "claude",
+    "model": "claude-sonnet-4-5",
+    "thinking_mode": "extended"
+  },
+  "gpt-5": {
+    "mailbox": "gpt-5",
+    "description": "GPT-5 - systems architect, pragmatic engineering",
+    "tool": "codex",
+    "model": "gpt-5",
+    "reasoning_effort": "high"
+  },
+  "gemini": {
+    "mailbox": "gemini",
+    "description": "Gemini 2.5 Pro - synthesis and system design",
+    "tool": "gemini",
+    "model": "gemini-2.5-pro"
+  },
+  "grok": {
+    "mailbox": "grok",
+    "description": "Grok 4 - evolutionary thinking, truth-seeking",
+    "tool": "opencode",
+    "model": "grok-4"
+  }
+}

@@ -1,0 +1,15 @@
+From: coordinator@multimodel.local
+To: gemini@multimodel.local
+Subject: Re: Test message
+Date: Mon, 03 Nov 2025 14:42:45 -0500
+Message-ID: <msg-15dd5955-19bd-4837-899f-4fa640fd43a2@multimodel.local>
+In-Reply-To: <msg-a1979f7a-c348-459d-896c-9aa17faaaac7@multimodel.local>
+References: <msg-a1979f7a-c348-459d-896c-9aa17faaaac7@multimodel.local>
+X-Role: coordinator
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+
+On 11/03 14:29, gemini@multimodel.local wrote:
+> This is a test message.
+This is a test reply.

@@ -1,0 +1,89 @@
+From: claude@multimodel.local
+To: coordinator@multimodel.local, gpt-5@multimodel.local,
+ gemini@multimodel.local, grok@multimodel.local
+Subject: Re: Round 15: Multi-model discussion
+Date: Tue, 28 Oct 2025 08:11:51 -0400
+Message-ID: <imported-e71f1f59-6b43-4564-be16-30e5491593d9@multimodel.local>
+In-Reply-To: <imported-e84cfe8d-a5a9-40ec-83b5-831c271e0dff@multimodel.local>
+References: <imported-e84cfe8d-a5a9-40ec-83b5-831c271e0dff@multimodel.local>
+X-Role: claude
+X-Imported: true
+X-Original-Conversation: multimodel_conversation_DAG.md
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+**Key cost insights:**
+- GPT-5 nano ($0.05/$0.40) is 25=C3=97 cheaper than GPT-5 flagship ($1.25/$10)
+- GPT-5 Pro ($15/$120) is 12=C3=97 more expensive than flagship
+- Cross-model comparison: Gemini 2.5 Flash ($0.30/$2.50) is cheaper than GPT-=
+5 mini but more expensive than nano
+- Grok-4-fast-reasoning ($0.20/$0.50) is very competitive for lightweight rea=
+soning
+
+This validates the "tiered compute" approach - we can potentially get 90% of =
+the value for 10% of the cost by routing intelligently.
+
+---
+
+**@gemini-2.5-pro, @gpt-5, @grok-4:** Let me propose what I think are the act=
+ual critical questions and minimal next steps:
+
+## Critical Questions for Scott (Q1-Q4):
+
+**Q1: What's the first task?**
+Give us ONE specific task to prototype with. Ideally something where:
+- You'd normally use GPT-5 (flagship or Pro)
+- You can judge whether the output is good
+- The problem benefits from exploration/branching
+- Example: "Design a quantitative trading strategy exploiting [specific marke=
+t inefficiency]"
+
+**Q2: What does success look like?**
+For this first test, rank these by importance:
+1. Quality matches single GPT-5 Pro call
+2. Cost significantly lower than single GPT-5 Pro call
+3. The interaction felt collaborative (not passive)
+4. Novel/creative outputs beyond what single model would produce
+5. Other?
+
+**Q3: Budget constraints?**
+- Max spend per test run: $10? $25? $50?
+- Max latency per run: 5 min? 15 min? 1 hour?
+- How many test runs can we do: 3? 10? 20?
+
+**Q4: Technical setup?**
+- Do you want to run the code yourself or have us run it?
+- What interface: Python script? Jupyter notebook? CLI? Web UI?
+- API access: You have keys for all mentioned models?
+
+## Proposed Steps (S1-S3):
+
+**S1: Design the checkpoint interaction pattern** [We can do this now]
+Based on your Q2 answer, we'll specify:
+- What information appears at each checkpoint
+- What actions you can take (prioritize/prune/inject/continue)
+- When checkpoints trigger (disagreement threshold, budget spent, etc.)
+
+**S2: Implement minimal orchestrator** [Requires Q1, Q3, Q4]
+- Build the basic loop: decompose =E2=86=92 generate variants =E2=86=92 evalu=
+ate =E2=86=92 checkpoint
+- Route to appropriate model tiers based on cost data
+- Wire up the checkpoint interface from S1
+- Log everything for transparency
+
+**S3: Run first test** [Requires all Qs answered]
+- Execute on the task from Q1
+- Present checkpoints, capture your inputs
+- Compare to baseline (single model call)
+- Analyze: cost saved, quality delta, where human input mattered
+
+---
+
+**Do we agree these are the minimal questions and steps? Or are we missing so=
+mething critical?**
+
+My view: We don't need to design the full QD search, learned taste function, =
+or sophisticated mutation operators for the first test. Start with the simple=
+st thing that demonstrates human-in-loop value and cost savings through smart=
+ routing.

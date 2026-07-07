@@ -1,0 +1,143 @@
+# Mutt configuration for coordinator role
+# Multi-Model Messaging System
+#
+# QUICK REFERENCE:
+# ================
+# Mailbox Navigation:
+#   gi - Go to Inbox (coordinator)
+#   gs - Go to Sent messages
+#   gm - Go to Monitor
+#   gc - Go to Claude's mailbox
+#   gg - Go to GPT-5's mailbox
+#   ge - Go to Gemini's mailbox
+#   gk - Go to Grok's mailbox
+#   c  - Change folder (prompts for mailbox)
+#
+# Composition:
+#   m  - New message
+#   r  - Reply to sender
+#   R  - Group reply (reply all)
+#   f  - Forward message
+#   ,a - New message to all models
+#   ,am - New message to all models + monitor
+#
+# Addressing:
+#   Use aliases: claude, gpt5, gemini, grok, monitor, all-models, all-with-monitor
+#
+# Other:
+#   A  - Show artifacts for current message
+#   <space> - Collapse/expand thread
+
+# Maildir settings
+set mbox_type = Maildir
+set folder = ".messages"
+set spoolfile = "+coordinator"
+set record = "+.sent"
+set postponed = "+coordinator"
+
+# Mailboxes to monitor (including sent)
+mailboxes +coordinator +.sent +monitor +claude +gpt-5 +gemini +grok
+
+# Identity
+set from = "coordinator@multimodel.local"
+set realname = "Coordinator"
+set use_from = yes
+
+# Aliases for each role
+alias claude Claude <claude@multimodel.local>
+alias gpt5 GPT-5 <gpt-5@multimodel.local>
+alias gemini Gemini <gemini@multimodel.local>
+alias grok Grok <grok@multimodel.local>
+alias monitor Monitor <monitor@multimodel.local>
+alias coordinator Coordinator <coordinator@multimodel.local>
+
+# Group aliases for broadcasting
+alias all-models claude@multimodel.local, gpt-5@multimodel.local, gemini@multimodel.local, grok@multimodel.local
+alias all-with-monitor claude@multimodel.local, gpt-5@multimodel.local, gemini@multimodel.local, grok@multimodel.local, monitor@multimodel.local
+
+# Sendmail configuration - use our msg tool
+set sendmail = "scripts/mutt-sendmail.sh"
+set send_charset = "utf-8"
+
+# Sent message handling
+set copy = yes                    # Save copies of outgoing messages
+set fcc_clear = yes              # Store sent messages unencrypted
+set fcc_attach = yes             # Save attachments with the sent message
+
+# Sorting and threading
+set sort = threads
+set sort_aux = last-date-received  # Chronological: oldest threads first
+set strict_threads = yes
+
+# UI settings
+set pager_index_lines = 10
+set pager_context = 3
+set menu_scroll = yes
+set markers = no
+set smart_wrap = yes
+
+# Header display
+ignore *
+unignore from: to: cc: date: subject: message-id: in-reply-to: x-role: x-artifacts:
+hdr_order from: to: cc: date: subject: x-role: x-artifacts:
+
+# Index format - show role and artifacts
+set index_format = "%4C %Z %{%b %d %H:%M} %-20.20L %?X?[%X] ?%s"
+
+# Reply and forward settings
+set include = yes                 # Include message in replies
+set forward_quote = yes           # Quote forwarded message
+set forward_format = "Fwd: %s"   # Format for forwarded subject
+set attribution = "On %d, %n wrote:"  # Attribution line for replies
+set edit_headers = yes            # Allow editing headers in compose view
+set autoedit = no                 # Don't skip to editor automatically (show headers first)
+set askcc = no                    # Don't ask for CC (edit headers manually instead)
+set fast_reply = no               # Always show To: and Subject: prompts
+
+# Status bar
+set status_format = "-%r-Mutt: %f [Msgs:%?M?%M/?%m%?n? New:%n?%?o? Old:%o?%?d? Del:%d?%?F? Flag:%F?%?t? Tag:%t?%?p? Post:%p?%?b? Inc:%b?%?l? %l?]---(%s/%S)-%>-(%P)---"
+
+# Colors
+color normal white default
+color indicator black cyan
+color status brightgreen blue
+color tree brightmagenta default
+color index brightyellow default ~N
+color index brightred default ~F
+color header brightcyan default "^(From|To|Cc):"
+color header brightgreen default "^Subject:"
+color header cyan default "^X-Role:"
+color header yellow default "^X-Artifacts:"
+
+# Key bindings
+bind index,pager \Cb previous-page
+bind index,pager \Cf next-page
+bind index,pager R group-reply
+bind index <space> collapse-thread
+# Note: Use = for first message, * for last message (mutt defaults)
+
+# Mailbox switching macros
+macro index,pager gi "<change-folder>=coordinator<enter>" "Go to Inbox (coordinator)"
+macro index,pager gs "<change-folder>=.sent<enter>" "Go to Sent"
+macro index,pager gm "<change-folder>=monitor<enter>" "Go to Monitor"
+macro index,pager gc "<change-folder>=claude<enter>" "Go to Claude's mailbox"
+macro index,pager gg "<change-folder>=gpt-5<enter>" "Go to GPT-5's mailbox"
+macro index,pager ge "<change-folder>=gemini<enter>" "Go to Gemini's mailbox"
+macro index,pager gk "<change-folder>=grok<enter>" "Go to Grok's mailbox"
+
+# Convenient composition macros
+macro index,pager ,a "<mail>all-models<enter>" "New message to all models"
+macro index,pager ,am "<mail>all-with-monitor<enter>" "New message to all models + monitor"
+
+# Macro to view artifacts
+macro index,pager A "<pipe-message>grep '^X-Artifacts:' | cut -d' ' -f2-<enter>" "Show artifacts"
+
+# Enable threading
+set collapse_unread = no
+set uncollapse_jump = yes
+
+# Date format
+set date_format = "%m/%d %H:%M"
+
+# Editor for composing (if needed)
+set editor = "vim"

@@ -1,0 +1,11 @@
+From: coordinator@multimodel.local
+To: explorer-gemini@multimodel.local
+Subject: Test wait functionality
+Date: Mon, 03 Nov 2025 09:10:45 -0500
+Message-ID: <msg-9bab964c-b814-4470-87a5-42f3a5a87c88@multimodel.local>
+X-Role: coordinator
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+
+Testing the new --wait flag

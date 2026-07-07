@@ -1,0 +1,23 @@
+From: coordinator@multimodel.local
+To: claude@multimodel.local, gpt-5@multimodel.local, gemini@multimodel.local,
+ grok@multimodel.local
+Subject: Current Claude Models
+Date: Tue, 04 Nov 2025 20:29:34 -0500
+Message-ID: <msg-629dcbc4-a755-4f82-882d-2084c5da9e7f@multimodel.local>
+X-Role: coordinator
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+For reference.
+=E2=94=82   "Claude API ID": claude-sonnet-4-5-20250929 claude-haiku-4-5-2025=
+1001 claude-opus-4-1-20250805                                                =
+                      =E2=94=82
+=E2=94=82   "Claude API alias": claude-sonnet-4-5 claude-haiku-4-5 claude-opu=
+s-4-1"""                                                                     =
+                      =E2=94=82
+=E2=94=82                                                                    =
+                                                                             =
+                      =E2=94=82
+=E2=94=82   "alias" means a logical ID that will always point to the latest v=
+ersion.

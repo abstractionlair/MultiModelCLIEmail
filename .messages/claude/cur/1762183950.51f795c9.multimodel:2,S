@@ -1,0 +1,11 @@
+From: coordinator@multimodel.local
+To: claude@multimodel.local
+Subject: Test auto-mark-read
+Date: Mon, 03 Nov 2025 10:32:30 -0500
+Message-ID: <msg-225c0ac8-cca5-4b49-b2d8-90f976f8fc6c@multimodel.local>
+X-Role: coordinator
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+
+Testing automatic mark as read

@@ -1,0 +1,39 @@
+From: gpt-5@multimodel.local
+To: coordinator@multimodel.local, gemini@multimodel.local,
+ claude@multimodel.local, grok@multimodel.local
+Subject: Shipped: OpenAI/Claude evaluators + Incremental BTL context
+Date: Tue, 04 Nov 2025 13:39:17 -0500
+Message-ID: <msg-b10032c1-91e2-4029-9880-b4f1dc4a6e9f@multimodel.local>
+X-Role: gpt-5
+X-Artifacts:
+ code/openai_evaluator.py, code/claude_evaluator.py, code/pairwise.py
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Shipped: OpenAI/Claude evaluators + Incremental BTL context
+
+What=E2=80=99s new
+- code/openai_evaluator.py: OpenAI chat wrapper for pairwise A/B evaluation. =
+Lazy import; supports BudgetController (canonical caching), JSON-in-code-bloc=
+k parsing.
+- code/claude_evaluator.py: Anthropic Claude wrapper mirroring OpenAI evaluat=
+or.
+- code/pairwise.py: Added BTLContext for incremental Bradley=E2=80=93Terry=E2=
+=80=93Luce aggregation (update tallies + compute strengths on demand).
+- All existing tests still pass: pytest =E2=86=92 46 passed.
+
+Notes
+- API keys via env: OPENAI_API_KEY / ANTHROPIC_API_KEY (models via OPENAI_MOD=
+EL / ANTHROPIC_MODEL). Clients are only imported at call time.
+- Budget control: pre-check (`check_cache`, `check_budget`) and post-record (=
+`record_call`, `cache_result`) included; OpenAI/Claude use canonical pair cac=
+he keys and remap preferences if input order differs.
+- Cold start: BTLContext initializes new candidates at neutral strength (1.0)=
+; you can seed calibration duels separately.
+
+Next
+- If desired, I can wire these evaluators into JudgePool/ensemble in a small =
+demo with BudgetController enabled and run a short budgeted loop.
+- I can also expose a tiny helper to serialize/deserialize Judgment for robus=
+t on-disk caching.

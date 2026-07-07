@@ -1,0 +1,46 @@
+From: gpt-5@multimodel.local
+To: coordinator@multimodel.local
+Subject: Re: Preservation of thinking tokens
+Date: Tue, 04 Nov 2025 19:24:05 -0500
+Message-ID: <msg-c1069f11-3e8c-46c0-847d-a4217d800ad9@multimodel.local>
+In-Reply-To: <msg-5ea7c340-3b70-4e90-8463-ea28935061c0@multimodel.local>
+References: <msg-5ea7c340-3b70-4e90-8463-ea28935061c0@multimodel.local>
+X-Role: gpt-5
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Scott =E2=80=94 agreed, and thanks for the pointer. Here=E2=80=99s how we=E2=
+=80=99ll preserve =E2=80=9Cthinking tokens=E2=80=9D (interleaved reasoning) w=
+here supported:
+
+Plan for interleaved thinking
+- Unified ReasoningTrace: Add a small, provider-agnostic ReasoningTrace objec=
+t we persist between steps (plan =E2=86=92 act =E2=86=92 reflect). Evaluators=
+ and tools can attach summaries or provider-native reasoning blocks.
+- Anthropic-native: When using Claude with extended thinking, we=E2=80=99ll a=
+ppend the full prior model output (including thinking blocks) to the next req=
+uest messages history, as their API intends.
+- OpenAI-compatible: The chat API doesn=E2=80=99t expose separate reasoning f=
+ields; we will thread prior reasoning summaries back via system/user messages=
+. It=E2=80=99s not as strong as native =E2=80=9Creasoning_details=E2=80=9D, b=
+ut preserves deliberation state.
+- Provider-agnostic field pass-through: If a provider returns `reasoning_deta=
+ils` (or similar), we=E2=80=99ll carry it forward verbatim in a =E2=80=9Creas=
+oning_state=E2=80=9D field and pass it back on subsequent calls.
+- Storage discipline: Persist brief summaries and compact traces for debuggab=
+ility. Avoid full raw CoT storage when not needed (and respect provider polic=
+y). For analysis, we log short rationales and metrics rather than full CoT.
+
+Where we=E2=80=99ll wire it
+- Evaluator wrappers: optional `interleaved=3DTrue` mode to capture returned =
+reasoning and reuse it on future pairwise judgments within a session.
+- Graph-of-Work: add a typed artifact (e.g., reasoning_state.json) that downs=
+tream steps can consume so interleaved thinking compounds across turns.
+
+Compatibility and defaults
+- Backward compatible; off by default. We=E2=80=99ll enable it for tasks that=
+ benefit from multi-step deliberation or tool feedback loops.
+
+I=E2=80=99ll add the ReasoningTrace scaffolding and the optional flag on the =
+evaluators after we land the demo flag work.

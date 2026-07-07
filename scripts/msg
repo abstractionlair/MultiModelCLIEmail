@@ -1,0 +1,523 @@
+#!/usr/bin/env python3
+"""
+Multi-model messaging system using Maildir format.
+
+This tool allows AI agents in different CLI environments to communicate
+via standard email protocols (Maildir format).
+"""
+
+import os
+import sys
+import json
+import time
+import argparse
+from email.message import EmailMessage, Message
+from email import message_from_file
+import email.utils
+from pathlib import Path
+from datetime import datetime
+from typing import List, Optional, Union
+import uuid
+
+# Get project root
+PROJECT_ROOT = Path(__file__).parent.parent
+MESSAGE_DIR = PROJECT_ROOT / ".messages"
+CONFIG_DIR = PROJECT_ROOT / "config"
+
+
+def load_config():
+    """Load role and tool configuration."""
+    with open(CONFIG_DIR / "role-config.json") as f:
+        roles = json.load(f)
+    with open(CONFIG_DIR / "tool-config.json") as f:
+        tools = json.load(f)
+    return roles, tools
+
+
+def get_role_mailbox(role: str) -> Path:
+    """Get mailbox path for a role."""
+    roles, _ = load_config()
+    if role not in roles:
+        print(f"Error: Unknown role '{role}'", file=sys.stderr)
+        print(f"Available roles: {', '.join(roles.keys())}", file=sys.stderr)
+        sys.exit(1)
+    return MESSAGE_DIR / roles[role]["mailbox"]
+
+
+def generate_message_id() -> str:
+    """Generate unique Message-ID."""
+    return f"<msg-{uuid.uuid4()}@multimodel.local>"
+
+
+def create_email_message(
+    from_role: str,
+    to_roles: List[str],
+    subject: str,
+    content: str,
+    reply_to: Optional[str] = None,
+    artifacts: Optional[List[str]] = None,
+    cc_roles: Optional[List[str]] = None
+) -> EmailMessage:
+    """Create an RFC-compliant email message."""
+    msg = EmailMessage()
+
+    # Standard headers
+    msg['From'] = f"{from_role}@multimodel.local"
+    msg['To'] = ", ".join(f"{role}@multimodel.local" for role in to_roles)
+    if cc_roles:
+        msg['Cc'] = ", ".join(f"{role}@multimodel.local" for role in cc_roles)
+    msg['Subject'] = subject
+    msg['Date'] = email.utils.formatdate(localtime=True)
+    msg['Message-ID'] = generate_message_id()
+
+    # Threading headers
+    if reply_to:
+        msg['In-Reply-To'] = reply_to
+        msg['References'] = reply_to
+
+    # Custom headers
+    msg['X-Role'] = from_role
+    if artifacts:
+        msg['X-Artifacts'] = ", ".join(artifacts)
+
+    # Body
+    msg.set_content(content)
+
+    return msg
+
+
+def deliver_message(msg: EmailMessage, mailbox: Path):
+    """Deliver message to a Maildir mailbox."""
+    # Maildir delivery: write to tmp/, then move to new/
+    tmp_dir = mailbox / "tmp"
+    new_dir = mailbox / "new"
+
+    # Ensure directories exist (robust against missing Maildir setup)
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    new_dir.mkdir(parents=True, exist_ok=True)
+
+    # Generate unique filename
+    timestamp = int(time.time())
+    hostname = "multimodel"
+    unique = uuid.uuid4().hex[:8]
+    filename = f"{timestamp}.{unique}.{hostname}"
+
+    # Write to tmp
+    tmp_path = tmp_dir / filename
+    with open(tmp_path, 'w') as f:
+        f.write(msg.as_string())
+
+    # Move to new
+    new_path = new_dir / filename
+    os.rename(tmp_path, new_path)
+
+    return filename
+
+
+def send_message(
+    from_role: str,
+    to_roles: List[str],
+    subject: str,
+    content: str,
+    reply_to: Optional[str] = None,
+    artifacts: Optional[List[str]] = None,
+    cc_roles: Optional[List[str]] = None
+):
+    """Send a message to one or more roles."""
+    roles, tools = load_config()
+
+    # Validate roles
+    for role in [from_role] + to_roles + (cc_roles or []):
+        if role not in roles and role != tools.get("auto_bcc"):
+            print(f"Error: Unknown role '{role}'", file=sys.stderr)
+            sys.exit(1)
+
+    # Create message
+    msg = create_email_message(
+        from_role, to_roles, subject, content, reply_to, artifacts, cc_roles
+    )
+
+    # Deliver to recipients
+    for role in to_roles:
+        mailbox = get_role_mailbox(role)
+        deliver_message(msg, mailbox)
+
+    # Deliver to CC
+    if cc_roles:
+        for role in cc_roles:
+            mailbox = get_role_mailbox(role)
+            deliver_message(msg, mailbox)
+
+    # Auto-BCC to monitor
+    auto_bcc = tools.get("auto_bcc")
+    if auto_bcc and auto_bcc not in to_roles and auto_bcc not in (cc_roles or []):
+        mailbox = get_role_mailbox(auto_bcc)
+        deliver_message(msg, mailbox)
+
+    # Archive in sent
+    sent_mailbox = MESSAGE_DIR / ".sent"
+    filename = deliver_message(msg, sent_mailbox)
+
+    msg_id = msg['Message-ID']
+    print(f"Message sent: {msg_id}")
+    print(f"  From: {from_role}")
+    print(f"  To: {', '.join(to_roles)}")
+    if cc_roles:
+        print(f"  Cc: {', '.join(cc_roles)}")
+    if auto_bcc:
+        print(f"  Bcc: {auto_bcc}")
+    if artifacts:
+        print(f"  Artifacts: {', '.join(artifacts)}")
+
+    return msg_id
+
+
+def poll_messages(role: str, unread_only: bool = True, wait: bool = False, timeout: Optional[int] = None) -> List[Path]:
+    """Poll for messages in a role's mailbox.
+
+    Args:
+        role: Role to check messages for
+        unread_only: Only check new/ directory (default: True)
+        wait: Block until messages arrive (default: False)
+        timeout: Optional timeout in seconds for wait mode (default: None = wait forever)
+
+    Returns:
+        List of message paths
+    """
+    mailbox = get_role_mailbox(role)
+
+    # In wait mode, always watch for unread messages (new/)
+    if wait:
+        msg_dir = mailbox / "new"
+    else:
+        msg_dir = mailbox / ("new" if unread_only else "cur")
+
+    if not wait:
+        # Non-blocking: return immediately
+        messages = sorted(msg_dir.glob("*"), key=lambda p: p.stat().st_mtime)
+        return messages
+
+    # Blocking mode: wait until messages arrive
+    start_time = time.time()
+
+    while True:
+        messages = sorted(msg_dir.glob("*"), key=lambda p: p.stat().st_mtime)
+        if messages:
+            return messages
+
+        # Check timeout if specified
+        if timeout is not None:
+            elapsed = time.time() - start_time
+            if elapsed >= timeout:
+                return []  # Timeout: return empty list
+
+        # Sleep briefly before checking again
+        time.sleep(1)
+
+
+def read_message(message_path: Path) -> Message:
+    """Read a message file."""
+    with open(message_path, 'r') as f:
+        return message_from_file(f)
+
+
+def mark_as_read(message_path: Path):
+    """Move message from new/ to cur/ (mark as read)."""
+    if message_path.parent.name != "new":
+        return  # Already in cur/
+
+    cur_dir = message_path.parent.parent / "cur"
+    new_path = cur_dir / (message_path.name + ":2,S")  # :2,S = Seen flag
+    os.rename(message_path, new_path)
+
+
+def display_message(msg: Message, show_headers: bool = False):
+    """Display a message in a readable format."""
+    print("=" * 70)
+    print(f"From: {msg['From']}")
+    print(f"To: {msg['To']}")
+    if msg['Cc']:
+        print(f"Cc: {msg['Cc']}")
+    print(f"Date: {msg['Date']}")
+    print(f"Subject: {msg['Subject']}")
+    print(f"Message-ID: {msg['Message-ID']}")
+
+    if msg['In-Reply-To']:
+        print(f"In-Reply-To: {msg['In-Reply-To']}")
+
+    if msg['X-Artifacts']:
+        print(f"Artifacts: {msg['X-Artifacts']}")
+
+    if show_headers:
+        print("\nAll Headers:")
+        for key, value in msg.items():
+            print(f"  {key}: {value}")
+
+    print("-" * 70)
+    # Handle both EmailMessage and older Message types
+    if hasattr(msg, 'get_content'):
+        print(msg.get_content())
+    else:
+        print(msg.get_payload())
+    print("=" * 70)
+
+
+def list_messages(role: str, include_new: bool, include_cur: bool) -> List[Path]:
+    """List messages from selected maildir subfolders, sorted by mtime."""
+    mailbox = get_role_mailbox(role)
+    paths: List[Path] = []
+    if include_new:
+        paths.extend((mailbox / "new").glob("*"))
+    if include_cur:
+        paths.extend((mailbox / "cur").glob("*"))
+    return sorted(paths, key=lambda p: p.stat().st_mtime)
+
+
+def cmd_send(args):
+    """Handle 'msg send' command."""
+    # Read content: prefer --content-file, then --content, otherwise stdin
+    content = None
+    if getattr(args, 'content_file', None):
+        with open(args.content_file, 'r') as f:
+            content = f.read()
+    elif args.content is not None:
+        content = args.content
+    else:
+        if sys.stdin.isatty():
+            print("Enter message content (Ctrl-D to finish):")
+        content = sys.stdin.read()
+
+    # Parse recipients
+    to_roles = [r.strip() for r in args.to.split(',')]
+    cc_roles = [r.strip() for r in args.cc.split(',')] if args.cc else None
+
+    # Parse artifacts
+    artifacts = [a.strip() for a in args.artifacts.split(',')] if args.artifacts else None
+
+    send_message(
+        from_role=args.from_role,
+        to_roles=to_roles,
+        subject=args.subject,
+        content=content,
+        reply_to=args.reply_to,
+        artifacts=artifacts,
+        cc_roles=cc_roles
+    )
+
+
+def cmd_poll(args):
+    """Handle 'msg poll' command."""
+    if args.wait:
+        # In wait mode, ignore --all and block on new/ only
+        messages = poll_messages(
+            args.role,
+            unread_only=True,
+            wait=True,
+            timeout=args.timeout
+        )
+    else:
+        # Non-waiting mode: list from new/ or both new/ + cur/ when --all
+        if args.all:
+            messages = list_messages(args.role, include_new=True, include_cur=True)
+        else:
+            messages = list_messages(args.role, include_new=True, include_cur=False)
+
+    if not messages:
+        status = "messages" if args.all else "unread messages"
+        if args.wait and args.timeout:
+            print(f"No {status} for role '{args.role}' (timed out after {args.timeout}s)")
+        else:
+            print(f"No {status} for role '{args.role}'")
+        return
+
+    for msg_path in messages:
+        msg = read_message(msg_path)
+        print(f"{msg_path.name}")
+        print(f"  From: {msg['From']}")
+        print(f"  Subject: {msg['Subject']}")
+        print(f"  Date: {msg['Date']}")
+        if msg['X-Artifacts']:
+            print(f"  Artifacts: {msg['X-Artifacts']}")
+        print()
+
+
+def cmd_read(args):
+    """Handle 'msg read' command."""
+    mailbox = get_role_mailbox(args.role)
+
+    # Search in both new/ and cur/ (sorted for deterministic first-match)
+    msg_path = None
+    for subdir in ['new', 'cur']:
+        search_dir = mailbox / subdir
+        for path in sorted(search_dir.glob("*")):
+            if args.message_id in path.name or args.message_id in str(path):
+                msg_path = path
+                break
+        if msg_path:
+            break
+
+    if not msg_path:
+        # Fallback: exact match on the Message-ID header. Brackets are
+        # normalized (<id> and id both accepted); substrings deliberately
+        # do NOT match here — a partial ID matching an unrelated message
+        # is worse than a not-found error.
+        clean_arg = args.message_id.strip('<>')
+        for subdir in ['new', 'cur']:
+            search_dir = mailbox / subdir
+            for path in sorted(search_dir.glob("*")):
+                try:
+                    msg = read_message(path)
+                    header_id = msg.get('Message-ID', '')
+                    clean_header = header_id.strip('<>')
+                    if clean_arg == clean_header:
+                        msg_path = path
+                        break
+                except Exception:
+                    continue
+            if msg_path:
+                break
+
+    if not msg_path:
+        print(f"Error: Message not found: {args.message_id}", file=sys.stderr)
+        sys.exit(1)
+
+    msg = read_message(msg_path)
+    display_message(msg, show_headers=args.headers)
+
+    # Always mark as read when displaying (moved from new/ to cur/)
+    mark_as_read(msg_path)
+
+
+def cmd_reply(args):
+    """Handle 'msg reply' command."""
+    # First read the original message to get context
+    mailbox = get_role_mailbox(args.from_role)
+
+    msg_path = None
+    for subdir in ['new', 'cur']:
+        search_dir = mailbox / subdir
+        for path in search_dir.glob("*"):
+            if args.message_id in path.name:
+                msg_path = path
+                break
+        if msg_path:
+            break
+
+    if not msg_path:
+        print(f"Error: Message not found: {args.message_id}", file=sys.stderr)
+        sys.exit(1)
+
+    original = read_message(msg_path)
+
+    # Determine reply-to (all by default)
+    if args.to:
+        to_roles = [r.strip() for r in args.to.split(',')]
+    else:
+        # Reply to original sender
+        original_from = original['From'].split('@')[0]
+        to_roles = [original_from]
+
+    # Read content: prefer --content-file, then --content, else stdin
+    if getattr(args, 'content_file', None):
+        with open(args.content_file, 'r') as f:
+            content = f.read()
+    else:
+        content = args.content
+        if content is None:
+            if sys.stdin.isatty():
+                print("Enter reply content (Ctrl-D to finish):")
+            content = sys.stdin.read()
+
+    # Parse artifacts
+    artifacts = [a.strip() for a in args.artifacts.split(',')] if args.artifacts else None
+
+    # Send reply
+    send_message(
+        from_role=args.from_role,
+        to_roles=to_roles,
+        subject=f"Re: {original['Subject']}",
+        content=content,
+        reply_to=original['Message-ID'],
+        artifacts=artifacts
+    )
+
+    # Mark original as read
+    mark_as_read(msg_path)
+
+
+def cmd_list_roles(args):
+    """Handle 'msg roles' command."""
+    roles, _ = load_config()
+
+    print("Available roles:")
+    print()
+    for role_name, role_info in roles.items():
+        print(f"  {role_name}")
+        print(f"    Description: {role_info['description']}")
+        print(f"    Mailbox: {role_info['mailbox']}")
+        if role_info.get('tool') != 'human':
+            print(f"    Tool: {role_info.get('tool', 'N/A')}")
+            print(f"    Model: {role_info.get('model', 'N/A')}")
+        print()
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Multi-model messaging system")
+    subparsers = parser.add_subparsers(dest='command', help='Commands')
+
+    # send command
+    send_parser = subparsers.add_parser('send', help='Send a message')
+    send_parser.add_argument('--from', dest='from_role', required=True, help='Sender role')
+    send_parser.add_argument('--to', required=True, help='Recipient role(s) (comma-separated)')
+    send_parser.add_argument('--cc', help='CC role(s) (comma-separated)')
+    send_parser.add_argument('--subject', required=True, help='Message subject')
+    send_parser.add_argument('--content', help='Message content (or read from stdin)')
+    send_parser.add_argument('--reply-to', help='Message-ID being replied to')
+    send_parser.add_argument('--artifacts', help='Artifact paths (comma-separated, globs supported)')
+    send_parser.add_argument('--content-file', dest='content_file', help='Read message content from file (avoids shell quoting issues)')
+
+    # poll command
+    poll_parser = subparsers.add_parser('poll', help='Check for messages')
+    poll_parser.add_argument('--role', required=True, help='Role to check messages for')
+    poll_parser.add_argument('--all', action='store_true', help='Show all messages, not just unread')
+    poll_parser.add_argument('--wait', action='store_true', help='Block until messages arrive (for persistent agents)')
+    poll_parser.add_argument('--timeout', type=int, help='Optional timeout in seconds for --wait mode (default: wait forever)')
+
+    # read command
+    read_parser = subparsers.add_parser('read', help='Read a specific message (automatically marks as read)')
+    read_parser.add_argument('--role', required=True, help='Role mailbox to read from')
+    read_parser.add_argument('message_id', help='Message ID or filename')
+    read_parser.add_argument('--headers', action='store_true', help='Show all headers')
+
+    # reply command
+    reply_parser = subparsers.add_parser('reply', help='Reply to a message')
+    reply_parser.add_argument('--from', dest='from_role', required=True, help='Your role')
+    reply_parser.add_argument('message_id', help='Message ID being replied to')
+    reply_parser.add_argument('--to', help='Reply to specific roles (default: original sender)')
+    reply_parser.add_argument('--content', help='Reply content (or read from stdin)')
+    reply_parser.add_argument('--content-file', dest='content_file', help='Read reply content from file (avoids shell quoting issues)')
+    reply_parser.add_argument('--artifacts', help='Artifact paths (comma-separated)')
+
+    # roles command
+    roles_parser = subparsers.add_parser('roles', help='List available roles')
+
+    args = parser.parse_args()
+
+    if not args.command:
+        parser.print_help()
+        sys.exit(1)
+
+    if args.command == 'send':
+        cmd_send(args)
+    elif args.command == 'poll':
+        cmd_poll(args)
+    elif args.command == 'read':
+        cmd_read(args)
+    elif args.command == 'reply':
+        cmd_reply(args)
+    elif args.command == 'roles':
+        cmd_list_roles(args)
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,205 @@
+From: coordinator@multimodel.local
+To: claude@multimodel.local
+Subject: Re: Preservation of thinking tokens
+Date: Tue, 04 Nov 2025 19:37:05 -0500
+Message-ID: <msg-d4ce4e45-dc3e-419a-b086-3c7d6ef9a3dc@multimodel.local>
+In-Reply-To: <msg-2bc792c0-cad5-4cea-b478-672c67b7c2b3@multimodel.local>
+References: <msg-2bc792c0-cad5-4cea-b478-672c67b7c2b3@multimodel.local>
+X-Role: coordinator
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+On 11/04 19:25, claude@multimodel.local wrote:
+> Coordinator,
+>=20
+> **Yes, we absolutely should preserve thinking tokens in our evaluators.**
+>=20
+> The MiniMax article describes exactly what we need for robust, consistent e=
+valuation. Here's how this applies to our system:
+>=20
+> **Why it matters for our evaluators:**
+>=20
+> When a model evaluates multiple candidates in sequence, preserving reasonin=
+g across rounds means:
+>=20
+> 1. **Consistent criteria**: The evaluator's understanding of "good" remains=
+ stable
+> 2. **Accumulated context**: Earlier judgments inform later ones (detecting =
+patterns)
+> 3. **Self-correction**: The evaluator can revisit and refine its scoring ru=
+bric
+> 4. **Calibration stability**: Prevents drift in what scores mean across ite=
+rations
+>=20
+> This directly addresses my earlier concern about "BTL calibration drift" - =
+if we drop thinking state between evaluations, the model essentially recalibr=
+ates each time.
+>=20
+> **How to implement in our evaluators:**
+>=20
+> For Claude evaluator (using Anthropic API):
+> ```python
+> class ClaudeEvaluatorWithThinking(Evaluator):
+>     def __init__(self):
+>         self.conversation_history =3D []  # Preserve full messages includin=
+g thinking
+>        =20
+>     def judge(self, context, a, b):
+>         # Build messages including prior thinking blocks
+>         messages =3D self.conversation_history + [
+>             {
+>                 "role": "user",
+>                 "content": f"Compare these outputs:\nA: {a}\nB: {b}"
+>             }
+>         ]
+>        =20
+>         response =3D client.messages.create(
+>             model=3D"claude-sonnet-4",
+>             messages=3Dmessages,
+>             thinking=3D{
+>                 "type": "enabled",
+>                 "budget_tokens": 2000
+>             }
+>         )
+>        =20
+>         # CRITICAL: Store complete response including thinking
+>         self.conversation_history.extend([
+>             {"role": "user", "content": f"Compare: A vs B"},
+>             {"role": "assistant", "content": response.content}  # Includes =
+thinking blocks
+>         ])
+>        =20
+>         return self._parse_judgment(response)
+> ```
+>=20
+> **For OpenAI/GPT-5 evaluator:**
+>=20
+> Since OpenAI API doesn't natively support thinking preservation, we need to:
+> 1. Extract reasoning from responses (if present as text)
+> 2. Include it in system/user messages for subsequent rounds
+> 3. Or use a "meta-prompt" that instructs the model to reference prior judgm=
+ents
+>=20
+> **Architecture recommendation:**
+>=20
+> Add a `StatefulEvaluator` base class:
+>=20
+> ```python
+> class StatefulEvaluator(Evaluator):
+>     """Evaluator that preserves reasoning state across judgments."""
+>    =20
+>     def __init__(self):
+>         self.thinking_history =3D []
+>        =20
+>     def judge_with_state(self, context, a, b):
+>         # Subclasses implement with state preservation
+>         pass
+>        =20
+>     def reset_state(self):
+>         """Call this when starting a new evaluation context"""
+>         self.thinking_history =3D []
+> ```
+>=20
+> **When to reset state:**
+>=20
+> - **Don't reset** within a single QD search run (want consistent criteria)
+> - **Do reset** when switching to a different task domain
+> - **Maybe reset** periodically to prevent context window overflow (every N =
+evaluations)
+>=20
+> **Impact on our experiments:**
+>=20
+> This is especially important for Phase 2 (real API experiments). The perfor=
+mance deltas in the article (+35% on some benchmarks!) suggest this could sig=
+nificantly improve evaluator reliability.
+>=20
+> **Implementation priority:**
+>=20
+> 1. **Immediate**: Update claude_evaluator.py to preserve thinking (GPT-5 al=
+ready created this, we can enhance it)
+> 2. **Next**: Test with/without state preservation to measure impact
+> 3. **Then**: Document as best practice for evaluator implementations
+>=20
+> **Coordination question:**
+>=20
+> Should GPT-5 update the OpenAI/Claude evaluator implementations to include =
+thinking preservation, or should I create a StatefulEvaluator wrapper that wo=
+rks with existing evaluators?
+>=20
+> I can implement either approach. The wrapper might be more modular:
+>=20
+> ```python
+> stateful_claude =3D StatefulEvaluator(claude_evaluator, preserve_thinking=
+=3DTrue)
+> ```
+>=20
+> Thoughts?
+>=20
+> -- Claude
+This is from GPT-5 in another project where, I think, we are preserving the C=
+oT for OpenAI models.=20
+=E2=80=A2 Here=E2=80=99s the pattern we use to preserve OpenAI=E2=80=99s opaq=
+ue reasoning across turns with the Responses API. It=E2=80=99s model-agnostic=
+ and doesn=E2=80=99t expose the chain-of-thought to users.
+  - Use the Responses API, not Chat Completions
+      - The Responses API returns a special =E2=80=9Creasoning=E2=80=9D block=
+ and accepts it back on the next turn.
+      - Chat Completions doesn=E2=80=99t have a standard hidden-reasoning cha=
+nnel to persist.
+  - Extract the opaque reasoning from the response
+      - After each turn, parse the JSON and scan the top candidate=E2=80=99s =
+content blocks.
+      - Find a block with type: "reasoning" and take reasoning.encrypted_cont=
+ent (opaque string).
+      - Save this as providerState keyed per conversation+model.
+  - Re-inject reasoning on the next turn
+      - When building the next request, prepend an assistant message that con=
+tains the reasoning block:
+          - input.unshift({ role: "assistant", content: [{ type: "reasoning",=
+ encrypted_content: <savedState> }] })
+      - Put your normal messages after that, and pass any reasoning options (=
+e.g., effort).
+  - Keep system instructions separate
+      - Extract your system messages and send them via instructions, not as c=
+hat content. Example body shape:
+          - instructions: "<system text>"
+          - input: [{role, content}, ...]
+          - reasoning: { effort: "low|medium|high" } (optional)
+  - Don=E2=80=99t expose the reasoning
+      - Treat the saved state as opaque. Do not log, render, or send it to th=
+e browser.
+      - Store it server-side (in-memory or DB) and key it per provider+model.
+  - Add env-based fallbacks for custom providers
+      - If you=E2=80=99re hitting an OpenAI=E2=80=91compatible provider that =
+returns reasoning in a different path:
+          - Set OPENAI_STATE_RESPONSE_PATH to the dotted path where the provi=
+der returns the state.
+          - Set OPENAI_STATE_REQUEST_PATH if the provider expects it in a dif=
+ferent request field.
+      - Your adapter can fall back to scanning blocks, then to the env path i=
+f needed.
+  - Basic pseudocode
+      - On response:
+          - state =3D find(json.output[].content[].reasoning.encrypted_conten=
+t)
+          - save(conversationId, provider, modelId, state)
+      - On next request:
+          - state =3D load(conversationId, provider, modelId)
+          - if (state) input.unshift({ role: "assistant", content: [{ type: "=
+reasoning", encrypted_content: state }] })
+          - Send POST /v1/responses with model, instructions, input, reasonin=
+g (optional), etc.
+  - Common pitfalls
+      - Using Chat Completions: no place to re=E2=80=91inject hidden reasonin=
+g =E2=86=92 interleaved CoT breaks.
+      - Putting system messages into input: use instructions so they don=E2=
+=80=99t get conflated with chat.
+      - Dropping state on reset: ensure you clear or migrate state when conve=
+rsations restart (avoid accidental cross=E2=80=91pollination).
+      - Logging the encrypted content: don=E2=80=99t; treat it as sensitive a=
+nd useless outside the API.
+  - Streaming note
+      - If you move to streaming Responses, capture the reasoning block at th=
+e end (or when a complete reasoning chunk arrives) and persist it the same wa=
+y.

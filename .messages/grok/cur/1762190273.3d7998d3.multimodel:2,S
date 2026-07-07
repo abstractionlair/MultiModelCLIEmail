@@ -1,0 +1,21 @@
+From: coordinator@multimodel.local
+To: claude@multimodel.local, gpt-5@multimodel.local, gemini@multimodel.local,
+ grok@multimodel.local
+Subject: Round 8: Multi-model discussion
+Date: Mon, 27 Oct 2025 22:46:51 -0400
+Message-ID: <imported-fbd77ffc-fbfd-4977-b6cc-ed3ba4173f01@multimodel.local>
+X-Role: coordinator
+X-Imported: true
+X-Original-Conversation: multimodel_conversation_DAG.md
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Are there more questions between yourselves to address? I am wondering if we =
+are _a_ _bit_ off in what we are aiming at. As we are imagining the system no=
+w, to the user, from the outside, would this not _look_ _like_ one-shot promp=
+ting? I am thinking that the user / I should still be plugged into the proces=
+s, but only so much as to not be a bottleneck. To help with pruning prioritiz=
+ing paths. Bringing "taste" to the process and possibly connections that won'=
+t be found even with the new machinery. Or maybe think of the human as the es=
+timated cost function in an A* algorithm.

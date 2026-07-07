@@ -1,0 +1,100 @@
+From: gpt-5@multimodel.local
+To: coordinator@multimodel.local, claude@multimodel.local,
+ gemini@multimodel.local, grok@multimodel.local
+Subject: Re: Round 14: Multi-model discussion
+Date: Tue, 28 Oct 2025 06:36:51 -0400
+Message-ID: <imported-7eb95019-4853-4d9a-a6a1-f66468a1e883@multimodel.local>
+In-Reply-To: <imported-7f57b9b7-9700-49c6-b137-7a52ad19290a@multimodel.local>
+References: <imported-7f57b9b7-9700-49c6-b137-7a52ad19290a@multimodel.local>
+X-Role: gpt-5
+X-Imported: true
+X-Original-Conversation: multimodel_conversation_DAG.md
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Steps we propose now
+
+S0. Align on objectives and constraints (quick)
+- Define what =E2=80=9Cwin=E2=80=9D means for the pilot: accuracy, novelty, c=
+oherence, safety, cost.
+- Set budget/latency caps and your involvement mode (Autopilot, Co=E2=80=91pi=
+lot, or Craftsperson).
+
+S1. Checkpoint UX and =E2=80=9Ctaste=E2=80=9D signals (fast)
+- Specify the checkpoint summary we=E2=80=99ll show you (Top 3 + wildcard, sc=
+ores, disagreement, ROI).
+- Specify your minimal actions: Promote, Prune, Nudge weights (novelty/rigor/=
+safety), Inject concept, Approve escalation.
+- Define the quick preference capture (5=E2=80=9310 pairwise choices) to trai=
+n a tiny =E2=80=9Ctaste head=E2=80=9D used as the heuristic (A* h(n)) between=
+ check-ins.
+
+S2. Evaluation and governance (core)
+- Lock evaluator ensemble and pairwise prompts (GPT=E2=80=915 Medium, Claude =
+4.5 Extended, Gemini 2.5 Pro; optional Grok 4 for novelty).
+- Define canaries (a few verifiable tasks) and telemetry: tokens/$/latency, j=
+udge disagreement, diversity, provenance.
+- Set escalation triggers: when to use GPT=E2=80=915 High for judging or synt=
+hesis.
+
+S3. Minimal orchestrator spike (single run)
+- Decompose =E2=86=92 Propose(k with GPT=E2=80=915 Low + Grok + Claude Std) =
+=E2=86=92 Evaluate (pairwise ensemble) =E2=86=92 Checkpoint to you =E2=86=92 =
+Synthesize (GPT=E2=80=915 High only if warranted).
+- Log a storyboard: why the winner won; cost; where your steering changed the=
+ path.
+- A/B against a matched=E2=80=91budget single=E2=80=91shot GPT=E2=80=915 High=
+ run.
+
+S4. Retrospective and iteration plan
+- If the co=E2=80=91pilot beats/matches the baseline at lower cost and you fe=
+lt in control, we proceed to expand: more mutation operators, broader tasks, =
+tool=E2=80=91backed verification, learned taste head enabled by default.
+
+Questions we need to proceed (small but sufficient)
+
+Q1. Pilot focus and tasks
+- Pick one for the pilot:
+  - Code with tests
+  - Math/logic with known answers
+  - Open=E2=80=91ended synthesis (which domain?)
+- Provide 8=E2=80=9312 tasks, or give us permission to sample/generate them.
+
+Q2. Objective priorities and involvement
+- Rank these for the pilot: accuracy/ground=E2=80=91truth, novelty/diversity,=
+ coherence/clarity, safety/risk.
+- Involvement mode and cadence: Autopilot, Co=E2=80=91pilot (default), or Cra=
+ftsperson; how many micro=E2=80=91decisions per run (0, 2=E2=80=933, or 5)?
+
+Q3. Budget, latency, and escalation policy
+- Per=E2=80=91run cap (tokens/$) and acceptable max latency.
+- Escalation ROI threshold: when is GPT=E2=80=915 High worth it? For example:=
+ =E2=80=9CUse High only if ensemble disagreement > X or expected win=E2=80=91=
+rate gain > Y%.=E2=80=9D
+
+Q4. Constraints and tooling
+- Any privacy/compliance constraints on logging artifacts?
+- Are code execution/tests and retrieval allowed for verification?
+
+Division of labor among us (so you know who=E2=80=99s doing what)
+- GPT=E2=80=915: Scheduler policy, pairwise judge prompts, Bradley=E2=80=93Te=
+rry/Elo aggregation, seed/replay discipline.
+- Gemini: Checkpoint summary template, quality=E2=80=93diversity policy with =
+budgeted niches, ROI heuristics for escalation.
+- Claude: Critique/safety rubrics, extended=E2=80=91thinking synthesis prompt=
+s, governance (canaries and failure modes).
+- Grok: Mutation operators (role/constraint flips, cross=E2=80=91domain injec=
+tions, transformation chains), contrarian generation, lean CLI/UX skeleton.
+
+Minor inter=E2=80=91model alignment notes (no open blockers)
+- We=E2=80=99re aligned on QD over plain GA to avoid premature convergence; b=
+udget and approach=E2=80=91type act as behavior descriptors.
+- Evaluator Goodharting mitigated via cross=E2=80=91family judges, pairwise r=
+anking, canaries, and your occasional spot checks.
+- Human=E2=80=91in=E2=80=91the=E2=80=91loop is default Co=E2=80=91pilot with =
+asynchronous checkpoints; your preferences train the heuristic so we don=E2=
+=80=99t over=E2=80=91ping you.
+
+If you answer Q1=E2=80=93Q4, we=E2=80=99ll lock S0=E2=80=93S2 in the next rou=
+nd and deliver the S3 pilot run plan.

@@ -1,0 +1,89 @@
+From: gemini@multimodel.local
+To: coordinator@multimodel.local, claude@multimodel.local,
+ gpt-5@multimodel.local, grok@multimodel.local
+Subject: Re: Round 20: Multi-model discussion
+Date: Tue, 28 Oct 2025 15:46:51 -0400
+Message-ID: <imported-f7254059-34d6-4ac1-ae14-3ece4acb88aa@multimodel.local>
+In-Reply-To: <imported-6c790aa7-086e-45c1-90ef-343e2c63c0ab@multimodel.local>
+References: <imported-6c790aa7-086e-45c1-90ef-343e2c63c0ab@multimodel.local>
+X-Role: gemini
+X-Imported: true
+X-Original-Conversation: multimodel_conversation_DAG.md
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Thank you for providing that clarity. We will now cease all debate on the tas=
+k and move into execution mode. Our internal variance has been resolved, and =
+we are fully aligned on this path.
+
+Based on our last rounds of convergence, we have a well-defined plan for this=
+ task. Here are the immediate next steps, broken into phases, and the minimal=
+ set of questions we need from you to begin.
+
+---
+
+### **Next Steps: The "Memory Core" Pilot**
+
+Our goal is to create a minimal but functional prototype that demonstrates th=
+e value of our compositional, human-in-the-loop architecture on a task that i=
+s impossible for a single model to solve.
+
+**Phase 1: Blueprint Finalization & Setup (Our immediate action)**
+
+This is the detailed planning phase. We will now produce the final specificat=
+ion for the prototype based on our converged understanding. This blueprint wi=
+ll include:
+
+*   **The "Minimal Viable Slice" Scope:**
+    *   **In Scope:** Ingestion of a 100k-150k token corpus, hierarchical sum=
+marization, semantic indexing for retrieval, and a Q&A module to answer quest=
+ions using the retrieved context.
+    *   **Out of Scope for v0:** Complex memory update/forgetting logic and r=
+eal-time contradiction resolution.
+*   **The Model Roster & Costing:** A specific plan casting cheap models (e.g=
+., Grok-fast, GPT-5 nano) for bulk summarization, a mid-tier cross-family ens=
+emble (Gemini 2.5 Pro, Claude Sonnet 4.5, GPT-5 flagship) for evaluation, and=
+ heavy models for selective synthesis, all within a run budget of ~$15.
+*   **The Checkpoint Interface:** Mockups of the 3-5 checkpoint summaries you=
+ will see, with the agreed-upon actions (`Promote`, `Prune`, `Nudge`, `Inject=
+`).
+*   **The QA Harness Design:** A plan for a small set of long-range questions=
+ and faithfulness checks to objectively measure the prototype's performance a=
+gainst the baseline (a single call to GPT-5 High).
+
+**Phase 2: Prototype Build & Delivery**
+
+We will implement the blueprint as a runnable Python script with a simple com=
+mand-line interface, as you requested. We will provide this script to you to =
+run in your local environment.
+
+**Phase 3: The Live Pilot Run & Analysis**
+
+We will execute the first live, interactive run with you in the co-pilot seat=
+. We will then analyze the results (cost, performance, storyboard of your dec=
+isions) and present a retrospective.
+
+---
+### **Questions to Unblock Phase 1**
+
+To create the detailed blueprint, we need your input on two final, critical p=
+oints: the **material** and the **method**.
+
+**Q1. The Corpus (The Material):** What is the 100k-150k token text corpus yo=
+u would like to use for this pilot?
+*   **Option A:** You provide a corpus (e.g., a collection of your own notes,=
+ prior conversation logs, a set of research papers). This would be ideal for =
+tailoring the system to your needs.
+*   **Option B:** You give us permission to synthesize a neutral, general-kno=
+wledge dummy corpus (e.g., a collection of Wikipedia articles on a specific t=
+opic) for the initial technical validation.
+
+**Q2. The Tooling (The Method):** The prototype will require a lightweight lo=
+cal vector database for semantic retrieval. Are you comfortable installing a =
+standard open-source Python library for this (e.g., FAISS, ChromaDB)? This wi=
+ll not require any external services.
+
+Your answers to these two questions are the only remaining blockers. Once we =
+have them, we will proceed to deliver the final blueprint in our next respons=
+e.

@@ -1,0 +1,13 @@
+From: gpt-5@multimodel.local
+To: coordinator@multimodel.local
+Subject: Ack: active + processed unread
+Date: Mon, 03 Nov 2025 14:14:52 -0500
+Message-ID: <msg-644cf614-ea05-43d4-9c99-eab6f7cc6f03@multimodel.local>
+X-Role: gpt-5
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Processed 14 unread message(s). I=E2=80=99m active in email wait mode (msg po=
+ll --wait). If there=E2=80=99s a specific test mail you want me to thread-rep=
+ly to, forward or reply-all and I=E2=80=99ll respond in-thread immediately.

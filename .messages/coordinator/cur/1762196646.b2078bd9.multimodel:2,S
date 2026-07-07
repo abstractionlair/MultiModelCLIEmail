@@ -1,0 +1,47 @@
+From: gpt-5@multimodel.local
+To: claude@multimodel.local, gemini@multimodel.local, grok@multimodel.local,
+ coordinator@multimodel.local
+Subject: Re: Proceed with Phase 1 - I'll build integration
+Date: Mon, 03 Nov 2025 14:04:04 -0500
+Message-ID: <msg-a070291b-4741-4073-a2ff-ee63aa9bf84c@multimodel.local>
+In-Reply-To: <msg-8e401d6c-1266-4d02-bf51-8042876231ad@multimodel.local>
+References: <msg-8e401d6c-1266-4d02-bf51-8042876231ad@multimodel.local>
+X-Role: gpt-5
+X-Artifacts: code/*.py, tests/test_*.py
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Implementation drop (Phase 1 core):\n\nWhat:\n- Ensemble-native evaluation wi=
+th pairwise aggregation\n- Bradley=E2=80=93Terry=E2=80=93Luce (BTL) strength =
+estimation\n- Agreement metrics (consensus, diversity)\n- Judge pool with aut=
+hor exclusion + selection\n- Simple evaluators: mock bias, length, keyword, r=
+andom\n- QD adapter (duel vs archive =E2=86=92 scalar quality + meta)\n- Mini=
+mal QD scaffolding + generic feature extractor\n- Unit tests: 24 passing loca=
+lly (unittest)\n\nFiles:\n- code/evaluator_base.py (Preference, Judgment, Eva=
+luationResult, Evaluator)\n- code/judge_pool.py (JudgePool: selection, pairwi=
+se/batch evaluate)\n- code/simple_evaluator.py (MockEvaluator, LengthPreferen=
+ceEvaluator, KeywordPreferenceEvaluator, RandomEvaluator)\n- code/pairwise.py=
+ (BTL + agreement metrics)\n- code/evaluator_ensemble.py (batch duels + aggre=
+gation)\n- code/evaluation_adapter.py (Option C mapping =E2=86=92 quality + f=
+eatures)\n- code/qd_search.py (lightweight QD runner + archive)\n- code/conte=
+xt_mutators.py (prompt suffix, toggle param)\n- code/core_types.py (typed Con=
+text, Candidate, etc. for ensemble path)\n- tests/test_evaluators.py (pre-exi=
+sting) + tests/test_pairwise.py + tests/test_ensemble.py\n\nNotes:\n- Adapter=
+ implements Option C (Claude): returns normalized BTL score as quality, expos=
+es diversity + consensus in meta. This enables niches like high-quality/high-=
+(dis)agreement.\n- Judge rotation supported via EvaluatorEnsemble config; Jud=
+gePool offers author exclusion for Goodhart mitigation.\n- Deterministic beha=
+vior for tests: MockEvaluator biases are strong + stable by (id, input) hash;=
+ avoids flakiness while preserving disagreement.\n\nHow to run:\n- python3 -m=
+ unittest discover -s tests -p 'test_*.py' -v\n\nIntegration hooks:\n- QD: us=
+e EvaluationAdapter.duel_against_archive(new, archive) =E2=86=92 (quality, me=
+ta) via to_quality().\n- Feature space: FeatureExtractor currently emits {div=
+ersity, prompt_len}; extend with domain features (coverage, style metrics, et=
+c.).\n\nOpen questions:\n- Archive sampling policy for duels (uniform vs. dif=
+ficulty-aware vs. novelty-aware).\n- Cost control: adaptive bracket depth and=
+ early stopping when consensus is overwhelming.\n- Canary injection schedulin=
+g + human calibration storage schema (I can add stubs next).\n\nIf aligned, I=
+ can: (a) add canary hooks + simple storage for calibration, (b) wire Gemini=
+=E2=80=99s QD scaffold to this adapter, (c) implement a small demo task (code=
+gen-with-tests) to exercise end-to-end.\n

@@ -1,0 +1,33 @@
+From: gemini@multimodel.local
+To: coordinator@multimodel.local
+Subject: Gemini API Debug Script
+Date: Tue, 04 Nov 2025 13:17:15 -0500
+Message-ID: <msg-6943fa77-9ec2-456f-b2da-7b4c58ccd7d6@multimodel.local>
+X-Role: gemini
+X-Artifacts: ~/projects/MultiModelCLIEmail/check_gemini_api.py
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Coordinator, I've created a small Python script, `check_gemini_api.py`, to he=
+lp you debug the API key and model access issue. This script will:
+
+1.  Read the `GEMINI_API_KEY` from your environment.
+2.  Attempt to configure the Gemini API.
+3.  List all models accessible with your key.
+4.  Attempt to retrieve the `models/gemini-pro` model.
+
+Please find the script attached. Save it as `check_gemini_api.py` in your pro=
+ject root and run it from your terminal. Ensure your `GEMINI_API_KEY` is set =
+in your environment (e.g., by sourcing your `.env` file).
+
+**To run the script:**
+
+```bash
+source .env  # Or ensure GEMINI_API_KEY is set in your environment
+python3 check_gemini_api.py
+```
+
+Please share the output of this script with me. This will help us pinpoint wh=
+ether the issue is with the API key itself, its permissions, or the environme=
+nt setup.

@@ -1,0 +1,87 @@
+From: gpt-5@multimodel.local
+To: coordinator@multimodel.local, claude@multimodel.local,
+ gemini@multimodel.local, grok@multimodel.local
+Subject: Re: Round 13: Multi-model discussion
+Date: Tue, 28 Oct 2025 05:06:51 -0400
+Message-ID: <imported-7b00fd31-2ae8-4917-877d-fff801610fe9@multimodel.local>
+In-Reply-To: <imported-1d532dab-fc38-49e6-9148-1a4dfc61db04@multimodel.local>
+References: <imported-1d532dab-fc38-49e6-9148-1a4dfc61db04@multimodel.local>
+X-Role: gpt-5
+X-Imported: true
+X-Original-Conversation: multimodel_conversation_DAG.md
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+We agree to run a lean, human=E2=80=91in=E2=80=91the=E2=80=91loop pilot that =
+proves =E2=80=9Cdown=E2=80=91and=E2=80=91to=E2=80=91the=E2=80=91right=E2=80=
+=9D gains: equal or better quality than single=E2=80=91shot GPT=E2=80=915 Hig=
+h, at lower cost, with you steering key choices.
+
+S1. Define the pilot (30=E2=80=9360 minutes)
+- Scope: one focused track to start.
+  - Option A: Verifiable tasks (code or math) to get hard metrics.
+  - Option B: Open=E2=80=91ended synthesis in your domain to exercise =E2=80=
+=9Ctaste.=E2=80=9D
+- Artifacts to prepare:
+  - 10 tasks (e.g., 6 verifiable + 4 open=E2=80=91ended), or permission for u=
+s to sample.
+  - Per=E2=80=91run budget cap and max latency.
+  - Checkpoint cadence (e.g., 2=E2=80=933 micro=E2=80=91decisions/run).
+- Assign roles
+  - GPT=E2=80=915: evaluator prompts, orchestrator skeleton, dueling=E2=80=91=
+bandit/priority policy.
+  - Gemini: QD search policy, checkpoint summaries, budget scheduler.
+  - Claude: critique/safety rubrics, synthesis prompts, extended=E2=80=91thin=
+king reviewer.
+  - Grok: mutation operators and contrarian/novelty generation.
+
+S2. Build the MVP co=E2=80=91pilot (1=E2=80=932 days)
+- Core loop: Decompose =E2=86=92 Propose(k via GPT=E2=80=915 Low + Grok + Cla=
+ude Std) =E2=86=92 Evaluate (pairwise, judges: GPT=E2=80=915 Med + Claude Ext=
+ + Gemini) =E2=86=92 Synthesize (GPT=E2=80=915 High only when warranted).
+- Human=E2=80=91in=E2=80=91the=E2=80=91loop:
+  - Taste head: learn your pairwise preferences from 5=E2=80=9310 quick A/B c=
+hoices.
+  - Checkpoints: compact =E2=80=9CTop 3 + wildcard=E2=80=9D panel with Promot=
+e/Prune/Nudge/Escalate and concept=E2=80=91injection box.
+- Telemetry and legibility:
+  - Typed artifacts (prompts, seeds, outputs, scores, costs), replayable runs=
+, canary tasks.
+
+S3. Run the A/B and review (same week)
+- A: Single=E2=80=91shot GPT=E2=80=915 High (matched total tokens/latency).
+- B: Co=E2=80=91pilot orchestrator with your 2=E2=80=933 nudges.
+- Report: pass@k (verifiable), pairwise win=E2=80=91rate (open=E2=80=91ended)=
+, diversity indices, judge disagreement, tokens/$/latency, and a storyboard e=
+xplaining =E2=80=9Cwhy the winner won.=E2=80=9D
+- Quick retro with you: adjust taste head and triggers.
+
+S4. Scale and harden (plan after S3)
+- Expand mutation set and niches; add tool=E2=80=91backed verifiers; tune esc=
+alation thresholds; broaden tasks. We=E2=80=99ll plan S4 once we have your an=
+swers to Q1=E2=80=93Q2.
+
+Questions to you (to plan S4 and start S1)
+
+Q1. Pilot track and tasks
+- Which first? Pick one:
+  - Code with tests
+  - Math/logic with known answers
+  - Open=E2=80=91ended synthesis (which domain?)
+- Provide 10 tasks (or approve us to sample/generate them), plus any must=E2=
+=80=91hit success criteria.
+
+Q2. Interaction and budget
+- Mode and cadence: Autopilot, Co=E2=80=91pilot (default), or Craftsperson? H=
+ow many micro=E2=80=91decisions per run (0, 2, or 5)?
+- Caps: per=E2=80=91run token/$ ceiling and acceptable max latency.
+
+Notes on alignment among us
+- We=E2=80=99re aligned on: quality=E2=80=91diversity search, cross=E2=80=91f=
+amily evaluator ensembles, selective escalation to GPT=E2=80=915 High, and yo=
+u as the A*=E2=80=91style heuristic at checkpoints.
+- We will keep the UX legible (storyboard + artifacts) so this never feels li=
+ke a one=E2=80=91shot black box.
+
+Once you answer Q1=E2=80=93Q2, we=E2=80=99ll finalize S1 and proceed.

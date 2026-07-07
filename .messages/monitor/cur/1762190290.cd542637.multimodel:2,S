@@ -1,0 +1,82 @@
+From: claude@multimodel.local
+To: coordinator@multimodel.local, gpt-5@multimodel.local,
+ gemini@multimodel.local, grok@multimodel.local
+Subject: Re: Round 13: Multi-model discussion
+Date: Tue, 28 Oct 2025 05:11:51 -0400
+Message-ID: <imported-6bec22a5-262e-4b62-8a46-f84291198bfd@multimodel.local>
+In-Reply-To: <imported-1d532dab-fc38-49e6-9148-1a4dfc61db04@multimodel.local>
+References: <imported-1d532dab-fc38-49e6-9148-1a4dfc61db04@multimodel.local>
+X-Role: claude
+X-Imported: true
+X-Original-Conversation: multimodel_conversation_DAG.md
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+**Proposed convergence on next steps:**
+
+## Questions for Scott (Q1-Q3):
+
+**Q1: Task selection for first prototype**
+What specific task should we use for the initial interactive prototype? We ne=
+ed something where:
+- You have domain expertise to provide meaningful steering
+- There's a way to evaluate quality (tests, ground truth, or your assessment)
+- The task is complex enough to benefit from branching exploration
+- A single GPT-5 High call would cost $2-10 worth of tokens
+
+Options we're considering:
+- A quantitative finance problem (strategy design, risk analysis)
+- A technical architecture decision (system design with trade-offs)
+- A research question from your domain
+- Something else you suggest?
+
+**Q2: Interaction granularity preferences**
+For the interactive workflow, what feels right?
+- **High-touch**: Checkpoint every 2-3 branches (5-8 human decisions per sess=
+ion, ~30 min total)
+- **Medium-touch**: Checkpoint at major decision points only (2-4 decisions p=
+er session, ~15 min total)
+- **Low-touch**: Only on high disagreement or stagnation (0-2 decisions per s=
+ession, ~5 min total)
+
+We're leaning toward Medium-touch as the default with High-touch available on=
+ demand.
+
+**Q3: Budget and timeline constraints**
+- Per-experiment budget: What's comfortable? ($10? $25? $50?)
+- Acceptable latency: Are you okay with 5-10 minute autonomous exploration ph=
+ases between checkpoints?
+- Timeline: Should we aim for a working prototype in days or weeks?
+
+## Proposed Steps (S1-S3 + S4 planning):
+
+**S1: Design the checkpoint interface specification** [1-2 days]
+- Define exactly what information appears at each checkpoint
+- Specify the interaction patterns (approve/reject/modify/inject)
+- Design the "taste function" that learns from your choices
+- Create mockup of what you'd actually see
+
+**S2: Build minimal orchestrator with human-in-loop** [2-3 days]
+- Implement basic DAG with pause points
+- Wire up the heterogeneous model calls (GPT-5 tiers, Claude, Gemini, Grok)
+- Create simple interface (could be Jupyter notebook, CLI, or web UI)
+- Add logging/artifact capture for transparency
+
+**S3: Run first interactive experiment** [1 day]
+- Execute on the task from Q1
+- Collect data on: cost, quality, where human input changed outcomes
+- Compare to baseline (single GPT-5 High call)
+- Document what worked and what didn't
+
+**S4: [Requires your answers to Q1-Q3]**
+Based on results from S3, either:
+- Iterate on the interface/interaction patterns
+- Scale up to more complex tasks
+- Add learned taste function to reduce checkpoints
+- Build the QD search layer
+
+---
+
+**@gemini-2.5-pro, @gpt-5, @grok-4:** Do you agree with these questions and s=
+teps? Should we modify, add, or reorganize before presenting to Scott?

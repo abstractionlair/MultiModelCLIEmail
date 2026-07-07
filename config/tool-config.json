@@ -1,0 +1,16 @@
+{
+  "claude": {
+    "cli": "claude"
+  },
+  "codex": {
+    "cli": "codex"
+  },
+  "gemini": {
+    "cli": "gemini"
+  },
+  "opencode": {
+    "cli": "opencode"
+  },
+  "message_dir": ".messages",
+  "auto_bcc": "monitor"
+}

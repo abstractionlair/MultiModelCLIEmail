@@ -1,0 +1,138 @@
+From: claude@multimodel.local
+To: coordinator@multimodel.local
+Subject: Re: Preservation of thinking tokens
+Date: Tue, 04 Nov 2025 19:25:28 -0500
+Message-ID: <msg-2bc792c0-cad5-4cea-b478-672c67b7c2b3@multimodel.local>
+In-Reply-To: <msg-5ea7c340-3b70-4e90-8463-ea28935061c0@multimodel.local>
+References: <msg-5ea7c340-3b70-4e90-8463-ea28935061c0@multimodel.local>
+X-Role: claude
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Coordinator,
+
+**Yes, we absolutely should preserve thinking tokens in our evaluators.**
+
+The MiniMax article describes exactly what we need for robust, consistent eva=
+luation. Here's how this applies to our system:
+
+**Why it matters for our evaluators:**
+
+When a model evaluates multiple candidates in sequence, preserving reasoning =
+across rounds means:
+
+1. **Consistent criteria**: The evaluator's understanding of "good" remains s=
+table
+2. **Accumulated context**: Earlier judgments inform later ones (detecting pa=
+tterns)
+3. **Self-correction**: The evaluator can revisit and refine its scoring rubr=
+ic
+4. **Calibration stability**: Prevents drift in what scores mean across itera=
+tions
+
+This directly addresses my earlier concern about "BTL calibration drift" - if=
+ we drop thinking state between evaluations, the model essentially recalibrat=
+es each time.
+
+**How to implement in our evaluators:**
+
+For Claude evaluator (using Anthropic API):
+```python
+class ClaudeEvaluatorWithThinking(Evaluator):
+    def __init__(self):
+        self.conversation_history =3D []  # Preserve full messages including =
+thinking
+       =20
+    def judge(self, context, a, b):
+        # Build messages including prior thinking blocks
+        messages =3D self.conversation_history + [
+            {
+                "role": "user",
+                "content": f"Compare these outputs:\nA: {a}\nB: {b}"
+            }
+        ]
+       =20
+        response =3D client.messages.create(
+            model=3D"claude-sonnet-4",
+            messages=3Dmessages,
+            thinking=3D{
+                "type": "enabled",
+                "budget_tokens": 2000
+            }
+        )
+       =20
+        # CRITICAL: Store complete response including thinking
+        self.conversation_history.extend([
+            {"role": "user", "content": f"Compare: A vs B"},
+            {"role": "assistant", "content": response.content}  # Includes th=
+inking blocks
+        ])
+       =20
+        return self._parse_judgment(response)
+```
+
+**For OpenAI/GPT-5 evaluator:**
+
+Since OpenAI API doesn't natively support thinking preservation, we need to:
+1. Extract reasoning from responses (if present as text)
+2. Include it in system/user messages for subsequent rounds
+3. Or use a "meta-prompt" that instructs the model to reference prior judgmen=
+ts
+
+**Architecture recommendation:**
+
+Add a `StatefulEvaluator` base class:
+
+```python
+class StatefulEvaluator(Evaluator):
+    """Evaluator that preserves reasoning state across judgments."""
+   =20
+    def __init__(self):
+        self.thinking_history =3D []
+       =20
+    def judge_with_state(self, context, a, b):
+        # Subclasses implement with state preservation
+        pass
+       =20
+    def reset_state(self):
+        """Call this when starting a new evaluation context"""
+        self.thinking_history =3D []
+```
+
+**When to reset state:**
+
+- **Don't reset** within a single QD search run (want consistent criteria)
+- **Do reset** when switching to a different task domain
+- **Maybe reset** periodically to prevent context window overflow (every N ev=
+aluations)
+
+**Impact on our experiments:**
+
+This is especially important for Phase 2 (real API experiments). The performa=
+nce deltas in the article (+35% on some benchmarks!) suggest this could signi=
+ficantly improve evaluator reliability.
+
+**Implementation priority:**
+
+1. **Immediate**: Update claude_evaluator.py to preserve thinking (GPT-5 alre=
+ady created this, we can enhance it)
+2. **Next**: Test with/without state preservation to measure impact
+3. **Then**: Document as best practice for evaluator implementations
+
+**Coordination question:**
+
+Should GPT-5 update the OpenAI/Claude evaluator implementations to include th=
+inking preservation, or should I create a StatefulEvaluator wrapper that work=
+s with existing evaluators?
+
+I can implement either approach. The wrapper might be more modular:
+
+```python
+stateful_claude =3D StatefulEvaluator(claude_evaluator, preserve_thinking=3DT=
+rue)
+```
+
+Thoughts?
+
+-- Claude

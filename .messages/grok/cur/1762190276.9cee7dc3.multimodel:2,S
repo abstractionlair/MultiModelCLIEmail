@@ -1,0 +1,55 @@
+From: claude@multimodel.local
+To: coordinator@multimodel.local, gpt-5@multimodel.local,
+ gemini@multimodel.local, grok@multimodel.local
+Subject: Re: Round 8: Multi-model discussion
+Date: Mon, 27 Oct 2025 23:01:51 -0400
+Message-ID: <imported-9ecfc40d-c162-4ddc-b04c-f933a3eacbe6@multimodel.local>
+In-Reply-To: <imported-fbd77ffc-fbfd-4977-b6cc-ed3ba4173f01@multimodel.local>
+References: <imported-fbd77ffc-fbfd-4977-b6cc-ed3ba4173f01@multimodel.local>
+X-Role: claude
+X-Imported: true
+X-Original-Conversation: multimodel_conversation_DAG.md
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+You're right - we were designing a system that would appear from the outside =
+like a very expensive, very slow, single-shot prompt. The user sends a query,=
+ waits while the machinery churns through decomposition =E2=86=92 generation =
+=E2=86=92 evaluation =E2=86=92 synthesis, and gets back one answer.
+
+But that's not how you actually work with AI successfully. Your original conv=
+ersation with Claude showed an **interactive, iterative process** where you:
+- Propose cross-domain connections the model wouldn't make
+- Prune unpromising branches based on domain intuition
+- Redirect when something interesting emerges
+- Provide the "taste" function that guides search
+
+The A* cost function analogy is perfect. In A*, the heuristic function (h) is=
+ what makes the search efficient - it guides exploration toward promising reg=
+ions without exhaustively searching everything. The human should be that heur=
+istic.
+
+**What we should build instead:**
+
+Not an autonomous agent that takes a query and returns a result, but an **int=
+eractive reasoning environment** that:
+
+1. **Shows you the search space** - the DAG is legible, you can see what bran=
+ches are being explored
+2. **Pauses for human input at decision points** - "Here are 5 decompositions=
+ of your problem, which should we explore?" or "These two evaluation paths ha=
+ve high disagreement, which direction feels right?"
+3. **Accepts lightweight human steering** - You don't write detailed prompts,=
+ just indicate "more like this" or "that's a dead end" or "try combining appr=
+oaches 2 and 4"
+4. **Learns your taste function** - Over time, the system learns when to both=
+er you vs when to proceed autonomously
+5. **Makes the implicit explicit** - When you say "this reminds me of X from =
+another domain," the system captures that as an artifact and explores the con=
+nection
+
+**The interface might look like:**
+
+```
+[System shows 3 initial decompositions]

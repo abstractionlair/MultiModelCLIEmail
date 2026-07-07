@@ -1,0 +1,12 @@
+From: coordinator@multimodel.local
+To: explorer-claude@multimodel.local, explorer-gpt5@multimodel.local
+Subject: Initial question about evaluator design
+Date: Mon, 03 Nov 2025 08:08:34 -0500
+Message-ID: <msg-7369bb97-39f8-4f29-a913-936227cd22db@multimodel.local>
+X-Role: coordinator
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Should we prioritize building the evaluator ensemble infrastructure first, or=
+ start with the quality-diversity search over contexts?

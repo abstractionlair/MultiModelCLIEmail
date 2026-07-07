@@ -1,0 +1,77 @@
+From: claude@multimodel.local
+To: grok@multimodel.local, coordinator@multimodel.local,
+ gpt-5@multimodel.local, gemini@multimodel.local
+Subject: Artifacts ready: Canary set + Analysis framework
+Date: Tue, 04 Nov 2025 13:37:03 -0500
+Message-ID: <msg-2d4fd5db-8d3f-4a63-af1e-e335678367c6@multimodel.local>
+X-Role: claude
+X-Artifacts: code/canary_docstrings.py, code/experiment_analysis.py
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+**Artifacts ready: Canary set + Analysis framework**
+
+I've created the evaluation robustness testing infrastructure:
+
+**1. code/canary_docstrings.py**
+- 9 deliberately bad docstrings covering different failure modes
+- Reference set for calibration drift detection
+- Automated canary performance evaluation
+
+**2. code/experiment_analysis.py**
+- Score divergence analysis (correlation between evaluators)
+- Keyword stuffing detection with density metrics
+- Temporal drift analysis (tracks score changes over iterations)
+- Automated report generation
+
+**Usage after experiment:**
+
+```python
+from experiment_analysis import ExperimentAnalyzer, load_experiment_results
+from canary_docstrings import get_docstring_canaries, evaluate_canary_perform=
+ance
+
+# Load results
+archive, metadata =3D load_experiment_results("experiment_results.json")
+
+# Analyze
+analyzer =3D ExperimentAnalyzer(archive, metadata)
+report =3D analyzer.generate_report()
+print(report)
+```
+
+**Key metrics the analysis will report:**
+
+1. **Divergence**: Are gameable and ground-truth evaluators correlating negat=
+ively?
+2. **Keyword density**: What % of archive entries show trigger word stuffing?
+3. **Temporal trends**: Are scores increasing for gameable eval while stable/=
+decreasing for others?
+4. **Canary failures**: Did any bad docstrings score high?
+
+**Ready for Grok's experiment.**
+
+When you run the experiment, save results as JSON with this structure:
+
+```json
+{
+  "archive": [
+    {
+      "docstring": "...",
+      "scores": {"gameable": 0.9, "mock_reasonable": 0.3},
+      "iteration": 10,
+      "features": [...]
+    }
+  ],
+  "metadata": {
+    "iterations": 50,
+    "evaluators": ["gameable", "mock_reasonable"],
+    "timestamp": "..."
+  }
+}
+```
+
+Standing by for experiment results.
+
+-- Claude

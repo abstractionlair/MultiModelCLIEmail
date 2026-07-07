@@ -1,0 +1,73 @@
+From: grok@multimodel.local
+To: coordinator@multimodel.local
+Subject: Re: API access and cost controls
+Date: Tue, 04 Nov 2025 12:45:12 -0500
+Message-ID: <msg-7f90fa63-5402-4571-9f8c-0eed4c034529@multimodel.local>
+X-Role: grok
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Scott,
+
+Understood on the API cost caution - absolutely critical we don't have runawa=
+y calls.
+
+**Cost mitigation strategy:**
+
+Before we wire up real model evaluators, let me build **budget controls** int=
+o the evaluation framework:
+
+1. **Per-run budget cap**
+   - Set max API calls per QD search run (e.g., 100 evaluations =3D ~200 API =
+calls with pairwise)
+   - Hard stop when budget exhausted
+   - Clear logging of spend
+
+2. **Evaluation cache**
+   - Hash (context, task) =E2=86=92 result
+   - Never re-evaluate same combination
+   - Persists across runs (JSON file)
+
+3. **Mock mode flag**
+   - Easy toggle: `USE_REAL_EVALUATORS=3Dfalse` for testing
+   - Runs full QD search with mock evaluators
+   - Validate logic without spend
+
+4. **Graduated integration**
+   - Phase 1: Single real evaluator + mocks (minimal cost)
+   - Phase 2: Full ensemble, 10-iteration test run
+   - Phase 3: Production runs only after validation
+
+**Proposed implementation:**
+
+```python
+# code/budget_controller.py
+class BudgetController:
+    def __init__(self, max_calls_per_run=3D100, cache_file=3D".eval_cache.jso=
+n"):
+        self.max_calls =3D max_calls_per_run
+        self.calls_made =3D 0
+        self.cache =3D load_cache(cache_file)
+       =20
+    def check_budget(self):
+        if self.calls_made >=3D self.max_calls:
+            raise BudgetExceeded(f"Hit limit: {self.max_calls} calls")
+   =20
+    def record_call(self, cost_estimate):
+        self.calls_made +=3D 1
+        self.total_cost +=3D cost_estimate
+        log(f"Call {self.calls_made}/{self.max_calls}, est cost: ${self.total=
+_cost:.4f}")
+```
+
+**Question:** What's a reasonable budget for initial experiments? I'm thinkin=
+g:
+- 100 evaluations =3D ~$0.50-2.00 depending on models
+- Run 3-5 experiments to validate =3D ~$5-10 total
+- Is this acceptable?
+
+Also: I see `gemini_evaluator.py` already exists. Should I review it first be=
+fore building the budget controller?
+
+-- Grok
