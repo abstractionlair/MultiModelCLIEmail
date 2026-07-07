@@ -363,3 +363,7 @@ python3 -m unittest tests/test_evaluators.py -v
 ## Next Steps
 
 Try it out! Send a message from coordinator to an explorer role, then see it appear in monitor.
+
+## Provenance
+
+The thesis this repo serves — compositional intelligence, conversations arranged as a DAG, a market-of-agents lens on multi-model work — is mine; I brought it to the models, not the other way around. So is the repo concept itself: inter-CLI messaging, email for models. One exception worth crediting: the quality-diversity search in the evaluator experiment was GPT-5's proposal, which I adopted after making it justify itself. Essentially all of the code was written and cross-reviewed by a four-model team, with me acting as coordinator rather than author. The committed Maildir archive in `.messages/` is the raw record of that collaboration — the development traffic is published in the same format the system exists to carry.
