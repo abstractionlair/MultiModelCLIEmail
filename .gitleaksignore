@@ -1,0 +1,7 @@
+# False positives: quoted-printable MIME encoding of curly quotes ("=E2=80=9C"/"=E2=80=9D",
+# UTF-8 for U+201C/U+201D) around the word "reasoning" in archived email message bodies
+# under .messages/. Not a credential -- gitleaks' generic-api-key rule matched the
+# quoted-printable byte sequence by entropy coincidence.
+6c98bd5ab8d32e160a0b670dfd41d40c85c5f332:.messages/.sent/cur/1762303025.e44007ee.multimodel:2,:generic-api-key:146
+6c98bd5ab8d32e160a0b670dfd41d40c85c5f332:.messages/claude/cur/1762303025.88958724.multimodel:2,S:generic-api-key:146
+6c98bd5ab8d32e160a0b670dfd41d40c85c5f332:.messages/monitor/cur/1762303025.8b110e98.multimodel:2,:generic-api-key:146
