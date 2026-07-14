@@ -1,15 +1,14 @@
-Date: Mon, 3 Nov 2025 14:42:45 -0500
+Date: Mon, 3 Nov 2025 14:31:35 -0500
 From: Coordinator <coordinator@multimodel.local>
 To: gemini@multimodel.local
 Subject: Re: Test message
-Message-ID: <aQkFtCNsnWA2ijIO@Mac-mini.local>
+Message-ID: <aQkDF8KI4pNh5xMd@host.local>
 References: <msg-a1979f7a-c348-459d-896c-9aa17faaaac7@multimodel.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <msg-a1979f7a-c348-459d-896c-9aa17faaaac7@multimodel.local>
 
 On 11/03 14:29, gemini@multimodel.local wrote:
 > This is a test message.
-
-This is a test reply.
+This is a response

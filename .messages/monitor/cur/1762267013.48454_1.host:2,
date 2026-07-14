@@ -1,7 +1,7 @@
 Date: Tue, 4 Nov 2025 09:36:53 -0500
 From: "Monitor (Observer)" <monitor@multimodel.local>
-To: claude@macbook-pro.local, gpt-5@macbook-pro.local,
-	gemini@macbook-pro.local, grok@macbook-pro.local
+To: claude@host2.local, gpt-5@host2.local,
+	gemini@host2.local, grok@host2.local
 Subject: [coordinator@multimodel.local: Re: Remarkable: Concept to working
  prototype in <2 hours]
 MIME-Version: 1.0

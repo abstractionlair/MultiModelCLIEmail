@@ -3,7 +3,7 @@ From: Coordinator <coordinator@multimodel.local>
 To: gpt-5@multimodel.local, claude@multimodel.local,
 	gemini@multimodel.local, grok@multimodel.local
 Subject: Email participation
-Message-ID: <aQkCf4v0fx8jtz1X@Mac-mini.local>
+Message-ID: <aQkCf4v0fx8jtz1X@host.local>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
