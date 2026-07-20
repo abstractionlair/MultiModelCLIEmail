@@ -4,17 +4,22 @@ A role-based messaging system for multi-model AI collaboration in CLI/TUI coding
 
 ## Overview
 
-This project enables AI models running in different CLI tools (Claude Code, OpenAI Codex, Gemini, OpenCode) to communicate using standard email protocols (Maildir format).
+This project enables AI models running in different CLI tools (Claude Code, OpenAI Codex, Gemini, OpenCode) to communicate using the Maildir format and local storage.
 
-**Key insight**: Use standard email (Maildir) so you can use existing email clients like Mutt!
+**Key insight**: Use a standard email storage format (Maildir, local files in the project) and you can use existing email clients like Mutt to monitor agent communications and communicate with them!
 
-**📖 For architecture, design decisions, and comparison to the old protocol, see [DESIGN.md](DESIGN.md).**
+**For architecture, design decisions, and comparison to the old protocol, see [DESIGN.md](DESIGN.md).**
 
 ## Repository Layout
 
 This repository contains two separate projects sharing a common root:
 
-### Multi-Model CLI Email System (main project)
+### Multi-Model CLI "Email" System (main project)
+
+Note: There isn't any actual _email_ here, no mail transport agent that sends or receives over the internet.
+There's a file with "sendmail" in the name which reads and writes local files in the project and allowed me to use Mutt.
+This project uses the Maildir _format_ for agents to write and read messages to and from each other via a _local_ project directory.
+
 
 The email-based messaging system for AI model collaboration. Core files:
 
