@@ -1,0 +1,11 @@
+From: coordinator@multimodel.local
+To: claude@multimodel.local
+Subject: arc-review-probe
+Date: Mon, 06 Jul 2026 00:37:35 +0000
+Message-ID: <msg-bc5a9f07-b7e5-4ce4-8a55-2d5e4f76f75f@multimodel.local>
+X-Role: coordinator
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+
+ping
